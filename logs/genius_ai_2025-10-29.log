@@ -1,0 +1,56 @@
+2025-10-29 15:38:53 | INFO     | genius_ai.api.server:lifespan:47 - Starting Genius AI server...
+2025-10-29 15:38:53 | INFO     | genius_ai.api.server:lifespan:51 - Loading custom trained model...
+2025-10-29 15:38:53 | ERROR    | genius_ai.api.server:lifespan:82 - Failed to start server: Can't instantiate abstract class CustomTrainedModel without an implementation for abstract method 'embed'
+2025-10-29 15:41:15 | INFO     | genius_ai.api.server:lifespan:47 - Starting Genius AI server...
+2025-10-29 15:41:15 | INFO     | genius_ai.api.server:lifespan:51 - Loading custom trained model...
+2025-10-29 15:41:15 | ERROR    | genius_ai.api.server:lifespan:82 - Failed to start server: BaseModel.__init__() missing 1 required positional argument: 'model_name'
+2025-10-29 15:42:34 | INFO     | genius_ai.api.server:lifespan:47 - Starting Genius AI server...
+2025-10-29 15:42:34 | INFO     | genius_ai.api.server:lifespan:51 - Loading custom trained model...
+2025-10-29 15:42:34 | INFO     | genius_ai.models.custom_trained:initialize:40 - Loading custom trained model from tiny_genius_model
+2025-10-29 15:42:34 | ERROR    | genius_ai.models.custom_trained:initialize:76 - Failed to initialize custom model: Model not found at tiny_genius_model. Please run the training script first.
+2025-10-29 15:42:34 | ERROR    | genius_ai.api.server:lifespan:82 - Failed to start server: Model not found at tiny_genius_model. Please run the training script first.
+2025-10-29 15:44:21 | INFO     | genius_ai.api.server:lifespan:47 - Starting Genius AI server...
+2025-10-29 15:44:21 | INFO     | genius_ai.api.server:lifespan:51 - Loading custom trained model...
+2025-10-29 15:44:21 | INFO     | genius_ai.models.custom_trained:initialize:40 - Loading custom trained model from ..\genius_model_enhanced
+2025-10-29 15:44:21 | INFO     | genius_ai.models.custom_trained:initialize:52 - Tokenizer loaded
+2025-10-29 15:44:22 | INFO     | genius_ai.models.custom_trained:initialize:66 - Model loaded on CPU
+2025-10-29 15:44:22 | INFO     | genius_ai.models.custom_trained:initialize:71 - Custom trained model initialized successfully
+2025-10-29 15:44:22 | INFO     | genius_ai.models.custom_trained:initialize:72 - Model parameters: ~82M
+2025-10-29 15:44:22 | INFO     | genius_ai.models.custom_trained:initialize:73 - Model size: ~313MB
+2025-10-29 15:44:22 | INFO     | genius_ai.api.server:lifespan:60 - Custom trained model loaded successfully
+2025-10-29 15:44:22 | INFO     | genius_ai.api.server:lifespan:61 - Model info: {'name': 'Custom Trained DistilGPT-2', 'path': '..\\genius_model_enhanced', 'parameters': '82M', 'size': '313MB', 'device': 'cpu', 'initialized': True, 'base_model': 'distilgpt2', 'training': 'Fine-tuned on Python programming knowledge'}
+2025-10-29 15:44:22 | INFO     | genius_ai.rag.vector_store:initialize:37 - Initializing vector store
+2025-10-29 15:44:23 | INFO     | genius_ai.rag.vector_store:initialize:55 - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-10-29 15:45:15 | INFO     | genius_ai.rag.vector_store:initialize:58 - Vector store initialized
+2025-10-29 15:45:15 | INFO     | genius_ai.api.server:lifespan:67 - RAG retriever initialized
+2025-10-29 15:45:15 | INFO     | genius_ai.tools.base:register:190 - Registered tool: calculator
+2025-10-29 15:45:15 | INFO     | genius_ai.tools.base:register:190 - Registered tool: search
+2025-10-29 15:45:15 | INFO     | genius_ai.tools.base:register:190 - Registered tool: execute_code
+2025-10-29 15:45:15 | INFO     | genius_ai.tools.base:register:190 - Registered tool: web_scrape
+2025-10-29 15:45:15 | INFO     | genius_ai.api.server:lifespan:77 - Orchestrator initialized with RAG and tools
+2025-10-29 15:45:15 | INFO     | genius_ai.api.server:lifespan:79 - Genius AI server started successfully
+2025-10-29 20:13:24 | INFO     | src.genius_ai.api.server:lifespan:47 - Starting Genius AI server...
+2025-10-29 20:13:24 | INFO     | src.genius_ai.api.server:lifespan:51 - Loading custom trained model...
+2025-10-29 20:13:24 | INFO     | genius_ai.models.custom_trained:initialize:40 - Loading custom trained model from ..\genius_model_enhanced
+2025-10-29 20:13:24 | INFO     | genius_ai.models.custom_trained:initialize:52 - Tokenizer loaded
+2025-10-29 20:13:25 | INFO     | genius_ai.models.custom_trained:initialize:66 - Model loaded on CPU
+2025-10-29 20:13:25 | INFO     | genius_ai.models.custom_trained:initialize:71 - Custom trained model initialized successfully
+2025-10-29 20:13:25 | INFO     | genius_ai.models.custom_trained:initialize:72 - Model parameters: ~82M
+2025-10-29 20:13:25 | INFO     | genius_ai.models.custom_trained:initialize:73 - Model size: ~313MB
+2025-10-29 20:13:25 | INFO     | src.genius_ai.api.server:lifespan:60 - Custom trained model loaded successfully
+2025-10-29 20:13:25 | INFO     | src.genius_ai.api.server:lifespan:61 - Model info: {'name': 'Custom Trained DistilGPT-2', 'path': '..\\genius_model_enhanced', 'parameters': '82M', 'size': '313MB', 'device': 'cpu', 'initialized': True, 'base_model': 'distilgpt2', 'training': 'Fine-tuned on Python programming knowledge'}
+2025-10-29 20:13:25 | INFO     | genius_ai.rag.vector_store:initialize:37 - Initializing vector store
+2025-10-29 20:13:26 | INFO     | genius_ai.rag.vector_store:initialize:55 - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-10-29 20:13:31 | INFO     | genius_ai.rag.vector_store:initialize:58 - Vector store initialized
+2025-10-29 20:13:31 | INFO     | src.genius_ai.api.server:lifespan:67 - RAG retriever initialized
+2025-10-29 20:13:31 | INFO     | genius_ai.tools.base:register:190 - Registered tool: calculator
+2025-10-29 20:13:31 | INFO     | genius_ai.tools.base:register:190 - Registered tool: search
+2025-10-29 20:13:31 | INFO     | genius_ai.tools.base:register:190 - Registered tool: execute_code
+2025-10-29 20:13:31 | INFO     | genius_ai.tools.base:register:190 - Registered tool: web_scrape
+2025-10-29 20:13:31 | INFO     | src.genius_ai.api.server:lifespan:77 - Orchestrator initialized with RAG and tools
+2025-10-29 20:13:31 | INFO     | src.genius_ai.api.server:lifespan:79 - Genius AI server started successfully
+2025-10-29 20:14:28 | WARNING  | src.genius_ai.api.server:chat:188 - Groq failed, using local model: GROQ_API_KEY not found in environment variables
+2025-10-29 20:14:28 | INFO     | genius_ai.rag.retriever:retrieve:220 - Retrieved 0 documents for query
+2025-10-29 20:14:28 | INFO     | genius_ai.rag.retriever:retrieve:220 - Retrieved 0 documents for query
+2025-10-29 20:14:35 | ERROR    | genius_ai.models.custom_trained:generate:149 - Generation error: ModelResponse.__init__() got an unexpected keyword argument 'usage'
+2025-10-29 20:14:35 | ERROR    | src.genius_ai.api.server:chat:234 - Chat error: ModelResponse.__init__() got an unexpected keyword argument 'usage'

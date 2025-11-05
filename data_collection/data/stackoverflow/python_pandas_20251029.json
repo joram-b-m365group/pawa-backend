@@ -1,0 +1,1801 @@
+[
+  {
+    "prompt": "How can I iterate over rows in a Pandas DataFrame?\n\nI have a pandas dataframe, df:\n   c1   c2\n0  10  100\n1  11  110\n2  12  120\n\nHow do I iterate over the rows of this dataframe? For every row, I want to access its elements (values in cells) by the name of the columns. For example:\nfor row in df.rows:\n    print(row['c1'], row['c2'])\n\n\nI found a similar question, which suggests using either of these:\n\n\nfor date, row in df.T.iteritems():\n\n\n\nfor row in df.iterrows():\n\n\n\nBut I do not understand what the row object is and how I can work with it.",
+    "response": "DataFrame.iterrows is a generator which yields both the index and row (as a Series):\nimport pandas as pd\n\ndf = pd.DataFrame({'c1': [10, 11, 12], 'c2': [100, 110, 120]})\ndf = df.reset_index()  # make sure indexes pair with number of rows\n\nfor index, row in df.iterrows():\n    print(row['c1'], row['c2'])\n\n\n10 100\n11 110\n12 120\n\n\nObligatory disclaimer from the documentation\n\nIterating through pandas objects is generally slow. In many cases, iterating manually over the rows is not needed and can be avoided with one of the following approaches:\n\nLook for a vectorized solution: many operations can be performed using built-in methods or NumPy functions, (boolean) indexing, …\nWhen you have a function that cannot work on the full DataFrame/Series at once, it is better to use apply() instead of iterating over the values. See the docs on function application.\nIf you need to do iterative manipulations on the values but performance is important, consider writing the inner loop with cython or numba. ",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 16476924,
+      "answer_id": 16476974,
+      "question_score": 4238,
+      "answer_score": 5504,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "loops"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I select rows from a DataFrame based on column values?\n\nHow can I select rows from a DataFrame based on values in some column in Pandas?\nIn SQL, I would use:\nSELECT *\nFROM table\nWHERE column_name = some_value",
+    "response": "To select rows whose column value equals a scalar, some_value, use ==:\ndf.loc[df['column_name'] == some_value]\n\nTo select rows whose column value is in an iterable, some_values, use isin:\ndf.loc[df['column_name'].isin(some_values)]\n\nCombine multiple conditions with &:\ndf.loc[(df['column_name'] >= A) & (df['column_name'] <= B)]\n\nNote the parentheses. Due to Python's operator precedence rules, & binds more tightly than <= and >=. Thus, the parentheses in the last example are necessary. Without the parentheses\ndf['column_name'] >= A & df['column_name'] <= B\n\nis parsed as\ndf['column_name'] >= (A & df['column_name']) <= B\n\nwhich results in a Truth value of a Series is ambiguous error.\n\nTo select rows whose column value does not equal some_value, use !=:\ndf.loc[df['column_name'] != some_value]\n\nThe isin returns a boolean Series, so to select rows whose value is not in some_values, negate the boolean Series using ~:\ndf = df.loc[~df['column_name'].isin(some_values)] # .loc is not in-place repl",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 17071871,
+      "answer_id": 17071908,
+      "question_score": 3625,
+      "answer_score": 6625,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "filter"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I change the size of figures drawn with Matplotlib?\n\nHow do I change the size of figure drawn with Matplotlib?",
+    "response": "figure tells you the call signature:\nfrom matplotlib.pyplot import figure\n\nfigure(figsize=(8, 6), dpi=80)\n\nfigure(figsize=(1,1)) would create an inch-by-inch image, which would be 80-by-80 pixels unless you also give a different dpi argument.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 332289,
+      "answer_id": 638443,
+      "question_score": 3263,
+      "answer_score": 1931,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "matplotlib",
+        "seaborn",
+        "figsize"
+      ]
+    }
+  },
+  {
+    "prompt": "Renaming column names in Pandas\n\nI want to change the column labels of a Pandas DataFrame from\n['$a', '$b', '$c', '$d', '$e']\n\nto\n['a', 'b', 'c', 'd', 'e']",
+    "response": "Just assign it to the .columns attribute:\n>>> df = pd.DataFrame({'$a':[1,2], '$b': [10,20]})\n>>> df\n   $a  $b\n0   1  10\n1   2  20\n\n>>> df.columns = ['a', 'b']\n>>> df\n   a   b\n0  1  10\n1  2  20",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 11346283,
+      "answer_id": 11346337,
+      "question_score": 3068,
+      "answer_score": 2571,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "replace",
+        "dataframe",
+        "rename"
+      ]
+    }
+  },
+  {
+    "prompt": "Delete a column from a Pandas DataFrame\n\nTo delete a column in a DataFrame, I can successfully use:\ndel df['column_name']\n\nBut why can't I use the following?\ndel df.column_name\n\nSince it is possible to access the Series via df.column_name, I expected this to work.",
+    "response": "As you've guessed, the right syntax is \n\ndel df['column_name']\n\n\nIt's difficult to make del df.column_name work simply as the result of syntactic limitations in Python. del df[name] gets translated to df.__delitem__(name) under the covers by Python.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13411544,
+      "answer_id": 13485766,
+      "question_score": 2330,
+      "answer_score": 1335,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "del"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I get the row count of a Pandas DataFrame?\n\nHow do I get the number of rows of a pandas dataframe df?",
+    "response": "For a dataframe df, one can use any of the following:\n\nlen(df.index)\ndf.shape[0]\ndf[df.columns[0]].count() (== number of non-NaN values in first column)\n\n\n\nCode to reproduce the plot:\nimport numpy as np\nimport pandas as pd\nimport perfplot\n\nperfplot.save(\n    \"out.png\",\n    setup=lambda n: pd.DataFrame(np.arange(n * 3).reshape(n, 3)),\n    n_range=[2**k for k in range(25)],\n    kernels=[\n        lambda df: len(df.index),\n        lambda df: df.shape[0],\n        lambda df: df[df.columns[0]].count(),\n    ],\n    labels=[\"len(df.index)\", \"df.shape[0]\", \"df[df.columns[0]].count()\"],\n    xlabel=\"Number of rows\",\n)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 15943769,
+      "answer_id": 15943975,
+      "question_score": 2023,
+      "answer_score": 2994,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Selecting multiple columns in a Pandas dataframe\n\nHow do I select columns a and b from df, and save them into a new dataframe df1?\nindex  a   b   c\n1      2   3   4\n2      3   4   5\n\nUnsuccessful attempt:\ndf1 = df['a':'b']\ndf1 = df.ix[:, 'a':'b']",
+    "response": "The column names (which are strings) cannot be sliced in the manner you tried.\nHere you have a couple of options. If you know from context which variables you want to slice out, you can just return a view of only those columns by passing a list into the __getitem__ syntax (the []'s).\ndf1 = df[['a', 'b']]\n\nAlternatively, if it matters to index them numerically and not by their name (say your code should automatically do this without knowing the names of the first two columns) then you can do this instead:\ndf1 = df.iloc[:, 0:2] # Remember that Python does not slice inclusive of the ending index.\n\nAdditionally, you should familiarize yourself with the idea of a view into a Pandas object vs. a copy of that object. The first of the above methods will return a new copy in memory of the desired sub-object (the desired slices).\nSometimes, however, there are indexing conventions in Pandas that don't do this and instead give you a new variable that just refers to the same chunk of memory as the ",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 11285613,
+      "answer_id": 11287278,
+      "question_score": 1796,
+      "answer_score": 2738,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "select",
+        "indexing"
+      ]
+    }
+  },
+  {
+    "prompt": "How to change the order of DataFrame columns?\n\nI have the following DataFrame (df):\nimport numpy as np\nimport pandas as pd\n\ndf = pd.DataFrame(np.random.rand(10, 5))\n\nI add more column(s) by assignment:\ndf['mean'] = df.mean(1)\n\nHow can I move the column mean to the front, i.e. set it as first column leaving the order of the other columns untouched?",
+    "response": "One easy way would be to reassign the dataframe with a list of the columns, rearranged as needed. \n\nThis is what you have now: \n\nIn [6]: df\nOut[6]:\n          0         1         2         3         4      mean\n0  0.445598  0.173835  0.343415  0.682252  0.582616  0.445543\n1  0.881592  0.696942  0.702232  0.696724  0.373551  0.670208\n2  0.662527  0.955193  0.131016  0.609548  0.804694  0.632596\n3  0.260919  0.783467  0.593433  0.033426  0.512019  0.436653\n4  0.131842  0.799367  0.182828  0.683330  0.019485  0.363371\n5  0.498784  0.873495  0.383811  0.699289  0.480447  0.587165\n6  0.388771  0.395757  0.745237  0.628406  0.784473  0.588529\n7  0.147986  0.459451  0.310961  0.706435  0.100914  0.345149\n8  0.394947  0.863494  0.585030  0.565944  0.356561  0.553195\n9  0.689260  0.865243  0.136481  0.386582  0.730399  0.561593\n\nIn [7]: cols = df.columns.tolist()\n\nIn [8]: cols\nOut[8]: [0L, 1L, 2L, 3L, 4L, 'mean']\n\n\nRearrange cols in any way you want. This is how I moved the last element to the f",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13148429,
+      "answer_id": 13148611,
+      "question_score": 1681,
+      "answer_score": 1433,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "sorting",
+        "indexing"
+      ]
+    }
+  },
+  {
+    "prompt": "Change column type in pandas\n\nI created a DataFrame from a list of lists:\ntable = [\n    ['a',  '1.2',  '4.2' ],\n    ['b',  '70',   '0.03'],\n    ['x',  '5',    '0'   ],\n]\n\ndf = pd.DataFrame(table)\n\nHow do I convert the columns to specific types? In this case, I want to convert columns 2 and 3 into floats.\nIs there a way to specify the types while converting the list to DataFrame? Or is it better to create the DataFrame first and then loop through the columns to change the dtype for each column? Ideally I would like to do this",
+    "response": "You have four main options for converting types in pandas:\n\nto_numeric() - provides functionality to safely convert non-numeric types (e.g. strings) to a suitable numeric type. (See also to_datetime() and to_timedelta().)\n\nastype() - convert (almost) any type to (almost) any other type (even if it's not necessarily sensible to do so). Also allows you to convert to categorial types (very useful).\n\ninfer_objects() - a utility method to convert object columns holding Python objects to a pandas type if possible.\n\nconvert_dtypes() - convert DataFrame columns to the \"best possible\"  dtype that supports pd.NA (pandas' object to indicate a missing value).\n\n\nRead on for more detailed explanations and usage of each of these methods.\n\n1. to_numeric()\nThe best way to convert one or more columns of a DataFrame to numeric values is to use pandas.to_numeric().\nThis function will try to change non-numeric objects (such as strings) into integers or floating-point numbers as appropriate.\nBasic usage\nThe",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 15891038,
+      "answer_id": 28648923,
+      "question_score": 1578,
+      "answer_score": 2624,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "types",
+        "type-conversion"
+      ]
+    }
+  },
+  {
+    "prompt": "How to deal with SettingWithCopyWarning in Pandas\n\nI just upgraded my Pandas from 0.11 to 0.13.0rc1. Now, the application is popping out many new warnings. One of them like this:\nE:\\FinReporter\\FM_EXT.py:449: SettingWithCopyWarning: A value is trying to be set on a copy of a slice from a DataFrame.\nTry using .loc[row_index,col_indexer] = value instead\n  quote_df['TVol']   = quote_df['TVol']/TVOL_SCALE\n\nWhat exactly does it mean?  Do I need to change something?\nHow should I suspend the warning if I insist on using quote_df['TVol']   = quote_df['T",
+    "response": "The SettingWithCopyWarning was created to flag potentially confusing \"chained\" assignments, such as the following, which does not always work as expected, particularly when the first selection returns a copy.  [see GH5390 and GH5597 for background discussion.]\ndf[df['A'] > 2]['B'] = new_val  # new_val not set in df\n\nThe warning offers a suggestion to rewrite as follows:\ndf.loc[df['A'] > 2, 'B'] = new_val\n\nHowever, this doesn't fit your usage, which is equivalent to:\ndf = df[df['A'] > 2]\ndf['B'] = new_val\n\nWhile it's clear that you don't care about writes making it back to the original frame (since you are overwriting the reference to it), unfortunately this pattern cannot be differentiated from the first chained assignment example. Hence the (false positive) warning. The potential for false positives is addressed in the docs on indexing, if you'd like to read further.  You can safely disable this new warning with the following assignment.\nimport pandas as pd\npd.options.mode.chained_ass",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20625582,
+      "answer_id": 20627316,
+      "question_score": 1487,
+      "answer_score": 1723,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "chained-assignment",
+        "pandas-settingwithcopy-warning"
+      ]
+    }
+  },
+  {
+    "prompt": "How to drop rows of Pandas DataFrame whose value in a certain column is NaN\n\nI have this DataFrame and want only the records whose EPS column is not NaN:\n                 STK_ID  EPS  cash\nSTK_ID RPT_Date                   \n601166 20111231  601166  NaN   NaN\n600036 20111231  600036  NaN    12\n600016 20111231  600016  4.3   NaN\n601009 20111231  601009  NaN   NaN\n601939 20111231  601939  2.5   NaN\n000001 20111231  000001  NaN   NaN\n\n...i.e. something like df.drop(....) to get this resulting dataframe:\n                  STK_ID  EPS  cash\nSTK_ID RPT_Date                   \n6",
+    "response": "Don't drop, just take the rows where EPS is not NA:\n\ndf = df[df['EPS'].notna()]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13413590,
+      "answer_id": 13413845,
+      "question_score": 1477,
+      "answer_score": 1649,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "nan"
+      ]
+    }
+  },
+  {
+    "prompt": "Create a Pandas Dataframe by appending one row at a time\n\nHow do I create an empty DataFrame, then add rows, one by one?\nI created an empty DataFrame:\ndf = pd.DataFrame(columns=('lib', 'qty1', 'qty2'))\n\nThen I can add a new row at the end and fill a single field with:\ndf = df._set_value(index=len(df), col='qty1', value=10.0)\n\nIt works for only one field at a time. What is a better way to add new row to df?",
+    "response": "You can use df.loc[i], where the row with index i will be what you specify it to be in the dataframe.\n>>> import pandas as pd\n>>> from numpy.random import randint\n\n>>> df = pd.DataFrame(columns=['lib', 'qty1', 'qty2'])\n>>> for i in range(5):\n>>>     df.loc[i] = ['name' + str(i)] + list(randint(10, size=2))\n\n>>> df\n     lib qty1 qty2\n0  name0    3    3\n1  name1    2    4\n2  name2    2    8\n3  name3    2    1\n4  name4    9    6",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 10715965,
+      "answer_id": 24888331,
+      "question_score": 1428,
+      "answer_score": 924,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "append"
+      ]
+    }
+  },
+  {
+    "prompt": "Get a list from Pandas DataFrame column headers\n\nI want to get a list of the column headers from a Pandas DataFrame.  The DataFrame will come from user input, so I won't know how many columns there will be or what they will be called.\nFor example, if I'm given a DataFrame like this:\n    y  gdp  cap\n0   1    2    5\n1   2    3    9\n2   8    7    2\n3   3    4    7\n4   6    7    7\n5   4    8    3\n6   8    2    8\n7   9    9   10\n8   6    6    4\n9  10   10    7\n\nI would get a list like this:\n['y', 'gdp', 'cap']",
+    "response": "You can get the values as a list by doing:\nlist(my_dataframe.columns.values)\n\nAlso you can simply use (as shown in Ed Chum's answer):\nlist(my_dataframe)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19482970,
+      "answer_id": 19483025,
+      "question_score": 1391,
+      "answer_score": 2060,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "list",
+        "header"
+      ]
+    }
+  },
+  {
+    "prompt": "Use a list of values to select rows from a Pandas dataframe\n\nLet’s say I have the following Pandas dataframe:\ndf = DataFrame({'A': [5,6,3,4], 'B': [1,2,3,5]})\ndf\n\n     A   B\n0    5   1\n1    6   2\n2    3   3\n3    4   5\n\nI can subset based on a specific value:\nx = df[df['A'] == 3]\nx\n\n     A   B\n2    3   3\n\nBut how can I subset based on a list of values? - something like this:\nlist_of_values = [3, 6]\n\ny = df[df['A'] in list_of_values]\n\nTo get:\n     A    B\n1    6    2\n2    3    3",
+    "response": "You can use the isin method:\nIn [1]: df = pd.DataFrame({'A': [5,6,3,4], 'B': [1,2,3,5]})\n\nIn [2]: df\nOut[2]:\n   A  B\n0  5  1\n1  6  2\n2  3  3\n3  4  5\n\nIn [3]: df[df['A'].isin([3, 6])]\nOut[3]:\n   A  B\n1  6  2\n2  3  3\n\nAnd to get the opposite use ~:\nIn [4]: df[~df['A'].isin([3, 6])]\nOut[4]:\n   A  B\n0  5  1\n3  4  5",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 12096252,
+      "answer_id": 12098586,
+      "question_score": 1390,
+      "answer_score": 2285,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "filter"
+      ]
+    }
+  },
+  {
+    "prompt": "How to add a new column to an existing DataFrame\n\nI have the following indexed DataFrame with named columns and rows not- continuous numbers:\n          a         b         c         d\n2  0.671399  0.101208 -0.181532  0.241273\n3  0.446172 -0.243316  0.051767  1.577318\n5  0.614758  0.075793 -0.451460 -0.012493\n\nI would like to add a new column, 'e', to the existing data frame and do not want to change anything in the data frame (i.e., the new column always has the same length as the DataFrame).\n0   -0.335485\n1   -1.166658\n2   -0.385571\ndtype: flo",
+    "response": "Edit 2017\nAs indicated in the comments and by @Alexander, currently the best method to add the values of a Series as a new column of a DataFrame could be using assign:\ndf1 = df1.assign(e=pd.Series(np.random.randn(sLength)).values)\n\n\nEdit 2015\nSome reported getting the SettingWithCopyWarning with this code.\nHowever, the code still runs perfectly with the current pandas version 0.16.1.\n>>> sLength = len(df1['a'])\n>>> df1\n          a         b         c         d\n6 -0.269221 -0.026476  0.997517  1.294385\n8  0.917438  0.847941  0.034235 -0.448948\n\n>>> df1['e'] = pd.Series(np.random.randn(sLength), index=df1.index)\n>>> df1\n          a         b         c         d         e\n6 -0.269221 -0.026476  0.997517  1.294385  1.757167\n8  0.917438  0.847941  0.034235 -0.448948  2.228131\n\n>>> pd.version.short_version\n'0.16.1'\n\nThe SettingWithCopyWarning aims to inform of a possibly invalid assignment on a copy of the Dataframe. It doesn't necessarily say you did it wrong (it can trigger false positives",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 12555323,
+      "answer_id": 12555510,
+      "question_score": 1342,
+      "answer_score": 1322,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "chained-assignment"
+      ]
+    }
+  },
+  {
+    "prompt": "Pretty-print an entire Pandas Series / DataFrame\n\nI work with Series and DataFrames on the terminal a lot. The default __repr__ for a Series returns a reduced sample, with some head and tail values, but the rest missing.\n\nIs there a builtin way to pretty-print the entire Series / DataFrame?  Ideally, it would support proper alignment, perhaps borders between columns, and maybe even color-coding for the different columns.",
+    "response": "You can also use the option_context, with one or more options:\n\nwith pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also\n    print(df)\n\n\nThis will automatically return the options to their previous values.\n\nIf you are working on jupyter-notebook, using display(df) instead of print(df) will use jupyter rich display logic (like so).",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19124601,
+      "answer_id": 30691921,
+      "question_score": 1262,
+      "answer_score": 1590,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Convert list of dictionaries to a pandas DataFrame\n\nHow can I convert a list of dictionaries into a DataFrame?\nI want to turn\n[{'points': 50, 'time': '5:00', 'year': 2010}, \n {'points': 25, 'time': '6:00', 'month': \"february\"}, \n {'points':90, 'time': '9:00', 'month': 'january'}, \n {'points_h1':20, 'month': 'june'}]\n\ninto\n      month  points  points_h1  time  year\n0       NaN      50        NaN  5:00  2010\n1  february      25        NaN  6:00   NaN\n2   january      90        NaN  9:00   NaN\n3      june     NaN         20   NaN   NaN",
+    "response": "If ds is a list of dicts:\ndf = pd.DataFrame(ds)\n\nNote: this does not work with nested data.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20638006,
+      "answer_id": 20638258,
+      "question_score": 1212,
+      "answer_score": 1692,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "dictionary",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "&quot;Large data&quot; workflows using pandas\n\nI have tried to puzzle out an answer to this question for many months while learning pandas.  I use SAS for my day-to-day work and it is great for it's out-of-core support.  However, SAS is horrible as a piece of software for numerous other reasons.\n\nOne day I hope to replace my use of SAS with python and pandas, but I currently lack an out-of-core workflow for large datasets.  I'm not talking about \"big data\" that requires a distributed network, but rather files too large to fit in memory but s",
+    "response": "I routinely use tens of gigabytes of data in just this fashion\ne.g. I have tables on disk that I read via queries, create data and append back.\n\nIt's worth reading the docs and late in this thread for several suggestions for how to store your data.\n\nDetails which will affect how you store your data, like:\nGive as much detail as you can; and I can help you develop a structure.\n\n\nSize of data, # of rows, columns, types of columns; are you appending\nrows, or just columns? \nWhat will typical operations look like. E.g. do a query on columns to select a bunch of rows and specific columns, then do an operation (in-memory), create new columns, save these.\n(Giving a toy example could enable us to offer more specific recommendations.)\nAfter that processing, then what do you do? Is step 2 ad hoc, or repeatable?\nInput flat files: how many, rough total size in Gb. How are these organized e.g. by records? Does each one contains different fields, or do they have some records per file with all of the ",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 14262433,
+      "answer_id": 14268804,
+      "question_score": 1188,
+      "answer_score": 719,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "mongodb",
+        "pandas",
+        "hdf5",
+        "large-data"
+      ]
+    }
+  },
+  {
+    "prompt": "Writing a pandas DataFrame to CSV file\n\nI have a dataframe in pandas which I would like to write to a CSV file.\nI am doing this using:\ndf.to_csv('out.csv')\n\nAnd getting the following error:\nUnicodeEncodeError: 'ascii' codec can't encode character u'\\u03b1' in position 20: ordinal not in range(128)\n\n\nIs there any way to get around this easily (i.e. I have unicode characters in my data frame)?\nAnd is there a way to write to a tab delimited file instead of a CSV using e.g. a 'to-tab' method (that I don't think exists)?",
+    "response": "To delimit by a tab you can use the sep argument of to_csv:\ndf.to_csv(file_name, sep='\\t')\n\nTo use a specific encoding (e.g. 'utf-8') use the encoding argument:\ndf.to_csv(file_name, sep='\\t', encoding='utf-8')\n\nIn many cases you will want to remove the index and add a header:\ndf.to_csv(file_name, sep='\\t', encoding='utf-8', index=False, header=True)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 16923281,
+      "answer_id": 16923367,
+      "question_score": 1164,
+      "answer_score": 1551,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "csv",
+        "file-io"
+      ]
+    }
+  },
+  {
+    "prompt": "Deleting DataFrame row in Pandas based on column value\n\nI have the following DataFrame:\n             daysago  line_race rating        rw    wrating\n line_date                                                 \n2007-03-31       62         11     56  1.000000  56.000000\n2007-03-10       83         11     67  1.000000  67.000000\n2007-02-10      111          9     66  1.000000  66.000000\n2007-01-13      139         10     83  0.880678  73.096278\n2006-12-23      160         10     88  0.793033  69.786942\n2006-11-09      204          9     52  0.636655  33.1",
+    "response": "If I'm understanding correctly, it should be as simple as:\n\ndf = df[df.line_race != 0]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18172851,
+      "answer_id": 18173074,
+      "question_score": 1059,
+      "answer_score": 1610,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "performance",
+        "delete-row"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I expand the output display to see more columns of a Pandas DataFrame?\n\nIs there a way to widen the display of output in either interactive or script-execution mode?\nSpecifically, I am using the describe() function on a Pandas DataFrame.  When the DataFrame is five columns (labels) wide, I get the descriptive statistics that I want.  However, if the DataFrame has any more columns, the statistics are suppressed and something like this is returned:\n>> Index: 8 entries, count to max\n>> Data columns:\n>> x1          8  non-null values\n>> x2          8  non-null values\n>>",
+    "response": "(For Pandas versions before 0.23.4, see at bottom.)\nUse pandas.set_option(optname, val), or equivalently pd.options.<opt.hierarchical.name> = val. Like:\nimport pandas as pd\n\npd.set_option('display.max_rows', 500)\npd.set_option('display.max_columns', 500)\npd.set_option('display.width', 1000)\n\nPandas will try to autodetect the size of your terminal window if you set pd.options.display.width = 0.\nHere is the help for set_option:\n\nset_option(pat,value) - Sets the value of the specified option\n\nAvailable options:\ndisplay.[chop_threshold, colheader_justify, column_space, date_dayfirst,\n         date_yearfirst, encoding, expand_frame_repr, float_format, height,\n         line_width, max_columns, max_colwidth, max_info_columns, max_info_rows,\n         max_rows, max_seq_items, mpl_style, multi_sparse, notebook_repr_html,\n         pprint_nest_depth, precision, width]\nmode.[sim_interactive, use_inf_as_null]\n\nParameters\n----------\npat - str/regexp which should match a single option.\n\nNote: partial ",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 11707586,
+      "answer_id": 11711637,
+      "question_score": 1044,
+      "answer_score": 1512,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "printing",
+        "column-width"
+      ]
+    }
+  },
+  {
+    "prompt": "Combine two columns of text in pandas dataframe\n\nI have a dataframe that looks like\nYear  quarter\n2000       q2\n2001       q3\n\nHow do I add a new column by combining these columns to get the following dataframe?\nYear  quarter  period\n2000       q2  2000q2\n2001       q3  2001q3",
+    "response": "If both columns are strings, you can concatenate them directly:\ndf[\"period\"] = df[\"Year\"] + df[\"quarter\"]\n\nIf one (or both) of the columns are not string typed, you should convert it (them) first,\ndf[\"period\"] = df[\"Year\"].astype(str) + df[\"quarter\"]\n\nBeware of NaNs when doing this!\n\nIf you need to join multiple string columns, you can use agg:\ndf['period'] = df[['Year', 'quarter', ...]].agg('-'.join, axis=1)\n\nWhere \"-\" is the separator.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19377969,
+      "answer_id": 19378497,
+      "question_score": 1006,
+      "answer_score": 1285,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "string",
+        "dataframe",
+        "string-concatenation"
+      ]
+    }
+  },
+  {
+    "prompt": "How are iloc and loc different?\n\nCan someone explain how these two methods of slicing are different? I've seen the docs\nand I've seen previous similar questions (1, 2), but I still find myself unable to understand how they are different. To me, they seem interchangeable in large part, because they are at the lower levels of slicing.\nFor example, say we want to get the first five rows of a DataFrame.  How is it that these two work?\ndf.loc[:5]\ndf.iloc[:5]\n\nCan someone present cases where the distinction in uses are clearer?\n\nOnce",
+    "response": "Label vs. Location\nThe main distinction between the two methods is:\n\nloc gets rows (and/or columns) with particular labels.\n\niloc gets rows (and/or columns) at integer locations.\n\n\nTo demonstrate, consider a series s of characters with a non-monotonic integer index:\n>>> s = pd.Series(list(\"abcdef\"), index=[49, 48, 47, 0, 1, 2]) \n49    a\n48    b\n47    c\n0     d\n1     e\n2     f\n\n>>> s.loc[0]    # value at index label 0\n'd'\n\n>>> s.iloc[0]   # value at index location 0\n'a'\n\n>>> s.loc[0:1]  # rows at index labels between 0 and 1 (inclusive)\n0    d\n1    e\n\n>>> s.iloc[0:1] # rows at index location between 0 and 1 (exclusive)\n49    a\n\nHere are some of the differences/similarities between s.loc and s.iloc when passed various objects:\n\n\n\n\n<object>\ndescription\ns.loc[<object>]\ns.iloc[<object>]\n\n\n\n\n0\nsingle item\nValue at index label 0 (the string 'd')\nValue at index location 0 (the string 'a')\n\n\n0:1\nslice\nTwo rows (labels 0 and 1)\nOne row (first row at location 0)\n\n\n1:47\nslice with out-of-bounds en",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 31593201,
+      "answer_id": 31593712,
+      "question_score": 1001,
+      "answer_score": 1604,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "pandas-loc"
+      ]
+    }
+  },
+  {
+    "prompt": "Pandas Merging 101\n\nHow can I perform a (INNER| (LEFT|RIGHT|FULL) OUTER) JOIN with pandas?\nHow do I add NaNs for missing rows after a merge?\nHow do I get rid of NaNs after merging?\nCan I merge on the index?\nHow do I merge multiple DataFrames?\nCross join with pandas\nmerge? join? concat? update? Who? What? Why?!\n\n... and more. I've seen these recurring questions asking about various facets of the pandas merge functionality. Most of the information regarding merge and its various use cases today is fragmented across d",
+    "response": "This post aims to give readers a primer on SQL-flavored merging with Pandas, how to use it, and when not to use it.\nIn particular, here's what this post will go through:\n\nThe basics - types of joins (LEFT, RIGHT, OUTER, INNER)\n\nmerging with different column names\nmerging with multiple columns\navoiding duplicate merge key column in output\n\n\n\nWhat this post (and other posts by me on this thread) will not go through:\n\nPerformance-related discussions and timings (for now). Mostly notable mentions of better alternatives, wherever appropriate.\nHandling suffixes, removing extra columns, renaming outputs, and other specific use cases. There are other (read: better) posts that deal with that, so figure it out!\n\n\nNote\nMost examples default to INNER JOIN operations while demonstrating various features, unless otherwise specified.\nFurthermore, all the DataFrames here can be copied and replicated so\nyou can play with them. Also, see this\npost\non how to read DataFrames from your clipboard.\nLastly, a",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 53645882,
+      "answer_id": 53645883,
+      "question_score": 947,
+      "answer_score": 1301,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "join",
+        "merge",
+        "concatenation"
+      ]
+    }
+  },
+  {
+    "prompt": "Filter pandas DataFrame by substring criteria\n\nI have a pandas DataFrame with a column of string values. I need to select rows based on partial string matches.\nSomething like this idiom:\nre.search(pattern, cell_in_question) \n\nreturning a boolean. I am familiar with the syntax of df[df['A'] == \"hello world\"] but can't seem to find a way to do the same with a partial string match, say 'hello'.",
+    "response": "Vectorized string methods (i.e. Series.str) let you do the following:\ndf[df['A'].str.contains(\"hello\")]\n\nThis is available in pandas 0.8.1 and up.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 11350770,
+      "answer_id": 11531402,
+      "question_score": 923,
+      "answer_score": 1445,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "regex",
+        "string",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Creating an empty Pandas DataFrame, and then filling it\n\nI'm starting from the pandas DataFrame documentation here: Introduction to data structures\nI'd like to iteratively fill the DataFrame with values in a time series kind of calculation. I'd like to initialize the DataFrame with columns A, B, and timestamp rows, all 0 or all NaN.\nI'd then add initial values and go over this data calculating the new row from the row before, say row[A][t] = row[A][t-1]+1 or so.\nI'm currently using the code as below, but I feel it's kind of ugly and there must be a  w",
+    "response": "Here's a couple of suggestions:\nUse date_range for the index:\nimport datetime\nimport pandas as pd\nimport numpy as np\n\ntodays_date = datetime.datetime.now().date()\nindex = pd.date_range(todays_date-datetime.timedelta(10), periods=10, freq='D')\n\ncolumns = ['A','B', 'C']\n\nNote: we could create an empty DataFrame (with NaNs) simply by writing:\ndf_ = pd.DataFrame(index=index, columns=columns)\ndf_ = df_.fillna(0) # With 0s rather than NaNs\n\nTo do these type of calculations for the data, use a NumPy array:\ndata = np.array([np.arange(10)]*3).T\n\nHence we can create the DataFrame:\nIn [10]: df = pd.DataFrame(data, index=index, columns=columns)\n\nIn [11]: df\nOut[11]:\n            A  B  C\n2012-11-29  0  0  0\n2012-11-30  1  1  1\n2012-12-01  2  2  2\n2012-12-02  3  3  3\n2012-12-03  4  4  4\n2012-12-04  5  5  5\n2012-12-05  6  6  6\n2012-12-06  7  7  7\n2012-12-07  8  8  8\n2012-12-08  9  9  9",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13784192,
+      "answer_id": 13786327,
+      "question_score": 920,
+      "answer_score": 427,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Shuffle DataFrame rows\n\nI have the following DataFrame:\n    Col1  Col2  Col3  Type\n0      1     2     3     1\n1      4     5     6     1\n...\n20     7     8     9     2\n21    10    11    12     2\n...\n45    13    14    15     3\n46    16    17    18     3\n...\n\nThe DataFrame is read from a CSV file. All rows which have Type 1 are on top, followed by the rows with Type 2, followed by the rows with Type 3, etc.\nI would like to shuffle the order of the DataFrame's rows so that all Type's are mixed. A possible result could be:",
+    "response": "The idiomatic way to do this with Pandas is to use the .sample method of your data frame to sample all rows without replacement:\ndf.sample(frac=1)\n\nThe frac keyword argument specifies the fraction of rows to return in the random sample, so frac=1 means to return all rows (in random order).\n\nNote:\nIf you wish to shuffle your dataframe in-place and reset the index, you could do e.g.\ndf = df.sample(frac=1).reset_index(drop=True)\n\nHere, specifying drop=True prevents .reset_index from creating a column containing the old index entries.\nFollow-up note: Although it may not look like the above operation is in-place, python/pandas is smart enough not to do another malloc for the shuffled object. That is, even though the reference object has changed (by which I mean id(df_old) is not the same as id(df_new)), the underlying C object is still the same. To show that this is indeed the case, you could run a simple memory profiler:\n$ python3 -m memory_profiler .\\test.py\nFilename: .\\test.py\n\nLine #   ",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 29576430,
+      "answer_id": 34879805,
+      "question_score": 901,
+      "answer_score": 1617,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "permutation",
+        "shuffle"
+      ]
+    }
+  },
+  {
+    "prompt": "Truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all()\n\nI want to filter my dataframe with an or condition to keep rows with a particular column's values that are outside the range [-0.25, 0.25]. I tried:\ndf = df[(df['col'] < -0.25) or (df['col'] > 0.25)]\n\nBut I get the error:\n\nValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().",
+    "response": "The or and and Python statements require truth-values. For pandas, these are considered ambiguous, so you should use \"bitwise\" | (or) or & (and) operations:\ndf = df[(df['col'] < -0.25) | (df['col'] > 0.25)]\n\nThese are overloaded for these kinds of data structures to yield the element-wise or or and.\n\nJust to add some more explanation to this statement:\nThe exception is thrown when you want to get the bool of a pandas.Series:\n>>> import pandas as pd\n>>> x = pd.Series([1])\n>>> bool(x)\nValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().\n\nYou hit a place where the operator implicitly converted the operands to bool (you used or but it also happens for and, if and while):\n>>> x or x\nValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().\n>>> x and x\nValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().\n>>> if x:\n...     print('fun')\nVa",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 36921951,
+      "answer_id": 36922103,
+      "question_score": 899,
+      "answer_score": 1161,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "filter",
+        "conditional-statements",
+        "valueerror"
+      ]
+    }
+  },
+  {
+    "prompt": "How to filter Pandas dataframe using &#39;in&#39; and &#39;not in&#39; like in SQL\n\nHow can I achieve the equivalents of SQL's IN and NOT IN?\nI have a list with the required values. Here's the scenario:\ndf = pd.DataFrame({'country': ['US', 'UK', 'Germany', 'China']})\ncountries_to_keep = ['UK', 'China']\n\n# pseudo-code:\ndf[df['country'] not in countries_to_keep]\n\nMy current way of doing this is as follows:\ndf = pd.DataFrame({'country': ['US', 'UK', 'Germany', 'China']})\ndf2 = pd.DataFrame({'country': ['UK', 'China'], 'matched': True})\n\n# IN\ndf.merge(df2, how='inner', on='country'",
+    "response": "You can use pd.Series.isin.\nFor \"IN\" use: something.isin(somewhere)\nOr for \"NOT IN\": ~something.isin(somewhere)\nAs a worked example:\n>>> df\n    country\n0        US\n1        UK\n2   Germany\n3     China\n>>> countries_to_keep\n['UK', 'China']\n>>> df.country.isin(countries_to_keep)\n0    False\n1     True\n2    False\n3     True\nName: country, dtype: bool\n>>> df[df.country.isin(countries_to_keep)]\n    country\n1        UK\n3     China\n>>> df[~df.country.isin(countries_to_keep)]\n    country\n0        US\n2   Germany",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19960077,
+      "answer_id": 19960116,
+      "question_score": 897,
+      "answer_score": 1550,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "filter"
+      ]
+    }
+  },
+  {
+    "prompt": "Constructing DataFrame from values in variables yields &quot;ValueError: If using all scalar values, you must pass an index&quot;\n\nI have two variables as follows.\na = 2\nb = 3\n\nI want to construct a DataFrame from this:\ndf2 = pd.DataFrame({'A':a, 'B':b})\n\nThis generates an error:\nValueError: If using all scalar values, you must pass an index\n\nI tried this also:\ndf2 = (pd.DataFrame({'a':a, 'b':b})).reset_index()\n\nThis gives the same error message. How do I do what I want?",
+    "response": "The error message says that if you're passing scalar values, you have to pass an index.  So you can either not use scalar values for the columns -- e.g. use a list:\n>>> df = pd.DataFrame({'A': [a], 'B': [b]})\n>>> df\n   A  B\n0  2  3\n\nor use scalar values and pass an index:\n>>> df = pd.DataFrame({'A': a, 'B': b}, index=[0, 3])\n>>> df\n   A  B\n0  2  3\n3  2  3",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 17839973,
+      "answer_id": 17840195,
+      "question_score": 868,
+      "answer_score": 1254,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "constructor",
+        "valueerror"
+      ]
+    }
+  },
+  {
+    "prompt": "How to convert index of a pandas dataframe into a column\n\nHow to convert an index of a dataframe into a column?\nFor example:\n        gi       ptt_loc\n 0  384444683      593  \n 1  384444684      594 \n 2  384444686      596  \n\nto\n    index1    gi       ptt_loc\n 0  0     384444683      593  \n 1  1     384444684      594 \n 2  2     384444686      596",
+    "response": "either:\ndf['index1'] = df.index\n\nor .reset_index:\ndf = df.reset_index()\n\n\nIf you have a multi-index frame with 3 levels of index, like:\n>>> df\n                       val\ntick       tag obs        \n2016-02-26 C   2    0.0139\n2016-02-27 A   2    0.5577\n2016-02-28 C   6    0.0303\n\nand you want to convert the 1st (tick) and 3rd (obs) levels in the index into columns, you could do:\n>>> df.reset_index(level=['tick', 'obs'])\n          tick  obs     val\ntag                        \nC   2016-02-26    2  0.0139\nA   2016-02-27    2  0.5577\nC   2016-02-28    6  0.0303",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20461165,
+      "answer_id": 20461206,
+      "question_score": 860,
+      "answer_score": 1396,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "join",
+        "indexing"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I count the NaN values in a column in pandas DataFrame?\n\nI want to find the number of NaN in each column of my data.",
+    "response": "Use the isna() method (or it's alias isnull() which is also compatible with older pandas versions < 0.21.0) and then sum to count the NaN values. For one column:\n>>> s = pd.Series([1,2,3, np.nan, np.nan])\n\n>>> s.isna().sum()   # or s.isnull().sum() for older pandas versions\n2\n\nFor several columns, this also works:\n>>> df = pd.DataFrame({'a':[1,2,np.nan], 'b':[np.nan,1,np.nan]})\n\n>>> df.isna().sum()\na    1\nb    2\ndtype: int64",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 26266362,
+      "answer_id": 26266451,
+      "question_score": 822,
+      "answer_score": 1152,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Get statistics for each group (such as count, mean, etc) using pandas GroupBy?\n\nI have a dataframe df and I use several columns from it to groupby:\ndf[['col1','col2','col3','col4']].groupby(['col1','col2']).mean()\n\nIn the above way, I almost get the table (dataframe) that I need. What is missing is an additional column that contains number of rows in each group. In other words, I have mean but I also would like to know how many were used to get these means. For example in the first group there are 8 values and in the second one 10 and so on.\nIn short: How do I get group-wis",
+    "response": "On groupby object, the agg function can take a list to apply several aggregation methods at once. This should give you the result you need:\n\ndf[['col1', 'col2', 'col3', 'col4']].groupby(['col1', 'col2']).agg(['mean', 'count'])",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19384532,
+      "answer_id": 19385591,
+      "question_score": 818,
+      "answer_score": 636,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "group-by",
+        "statistics"
+      ]
+    }
+  },
+  {
+    "prompt": "Set value for particular cell in pandas DataFrame using index\n\nI have created a Pandas DataFrame\ndf = DataFrame(index=['A','B','C'], columns=['x','y'])\n\nNow, I would like to assign a value to particular cell, for example to row C and column x. In other words, I would like to perform the following transformation:\n     x    y             x    y\nA  NaN  NaN        A  NaN  NaN\nB  NaN  NaN   ⟶   B  NaN  NaN\nC  NaN  NaN        C   10  NaN\n\nwith this code:\ndf.xs('C')['x'] = 10\n\nHowever, the contents of df has not changed. The dataframe contains yet again only NaNs",
+    "response": "RukTech's answer, df.set_value('C', 'x', 10), is far and away faster than the options I've suggested below. However, it has been slated for deprecation.\n\nGoing forward, the recommended method is .iat/.at.\n\n\n\nWhy df.xs('C')['x']=10 does not work:\n\ndf.xs('C') by default, returns a new dataframe with a copy of the data, so \n\ndf.xs('C')['x']=10\n\n\nmodifies this new dataframe only.\n\ndf['x'] returns a view of the df dataframe, so \n\ndf['x']['C'] = 10\n\n\nmodifies df itself.\n\nWarning: It is sometimes difficult to predict if an operation returns a copy or a view. For this reason the docs recommend avoiding assignments with \"chained indexing\".  \n\n\n\nSo the recommended alternative is\n\ndf.at['C', 'x'] = 10\n\n\nwhich does modify df.\n\n\n\nIn [18]: %timeit df.set_value('C', 'x', 10)\n100000 loops, best of 3: 2.9 µs per loop\n\nIn [20]: %timeit df['x']['C'] = 10\n100000 loops, best of 3: 6.31 µs per loop\n\nIn [81]: %timeit df.at['C', 'x'] = 10\n100000 loops, best of 3: 9.2 µs per loop",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13842088,
+      "answer_id": 13842286,
+      "question_score": 804,
+      "answer_score": 955,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "cell",
+        "nan"
+      ]
+    }
+  },
+  {
+    "prompt": "Import multiple CSV files into pandas and concatenate into one DataFrame\n\nI would like to read several CSV files from a directory into pandas and concatenate them into one big DataFrame. I have not been able to figure it out though. Here is what I have so far:\nimport glob\nimport pandas as pd\n\n# Get data file names\npath = r'C:\\DRO\\DCL_rawdata_files'\nfilenames = glob.glob(path + \"/*.csv\")\n\ndfs = []\nfor filename in filenames:\n    dfs.append(pd.read_csv(filename))\n\n# Concatenate all data into one DataFrame\nbig_frame = pd.concat(dfs, ignore_index=True)\n\nI guess I need some",
+    "response": "See pandas: IO tools for all of the available .read_ methods.\nTry the following code if all of the CSV files have the same columns.\nI have added header=0, so that after reading the CSV file's first row, it can be assigned as the column names.\nimport pandas as pd\nimport glob\nimport os\n\npath = r'C:\\DRO\\DCL_rawdata_files' # use your path\nall_files = glob.glob(os.path.join(path , \"/*.csv\"))\n\nli = []\n\nfor filename in all_files:\n    df = pd.read_csv(filename, index_col=None, header=0)\n    li.append(df)\n\nframe = pd.concat(li, axis=0, ignore_index=True)\n\nOr, with attribution to a comment from Sid.\nall_files = glob.glob(os.path.join(path, \"*.csv\"))\n\ndf = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)\n\n\n\nIt's often necessary to identify each sample of data, which can be accomplished by adding a new column to the dataframe.\npathlib from the standard library will be used for this example. It treats paths as objects with methods, instead of strings to be sliced.\n\nImports and Setu",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20906474,
+      "answer_id": 21232849,
+      "question_score": 781,
+      "answer_score": 906,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "csv",
+        "dataframe",
+        "concatenation"
+      ]
+    }
+  },
+  {
+    "prompt": "How to avoid pandas creating an index in a saved csv\n\nI am trying to save a csv to a folder after making some edits to the file. \n\nEvery time I use pd.to_csv('C:/Path of file.csv') the csv file has a separate column of indexes. I want to avoid printing the index to csv.\n\nI tried: \n\npd.read_csv('C:/Path to file to edit.csv', index_col = False)\n\n\nAnd to save the file...\n\npd.to_csv('C:/Path to save edited file.csv', index_col = False)\n\n\nHowever, I still got the unwanted index column. How can I avoid this when I save my files?",
+    "response": "Use index=False.\n\ndf.to_csv('your.csv', index=False)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20845213,
+      "answer_id": 25230582,
+      "question_score": 780,
+      "answer_score": 1173,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "csv",
+        "indexing",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "How to apply a function to two columns of Pandas dataframe\n\nSuppose I have a function and a dataframe defined as below:\ndef get_sublist(sta, end):\n    return mylist[sta:end+1]\n\ndf = pd.DataFrame({'ID':['1','2','3'], 'col_1': [0,2,3], 'col_2':[1,4,5]})\nmylist = ['a','b','c','d','e','f']\n\nNow I want to apply get_sublist to df's two columns 'col_1', 'col_2' to element-wise calculate a new column 'col_3' to get an output that looks like:\n  ID  col_1  col_2            col_3\n0  1      0      1       ['a', 'b']\n1  2      2      4  ['c', 'd', 'e']\n2  3      3   ",
+    "response": "There is a clean, one-line way of doing this in Pandas:\n\ndf['col_3'] = df.apply(lambda x: f(x.col_1, x.col_2), axis=1)\n\n\nThis allows f to be a user-defined function with multiple input values, and uses (safe) column names rather than (unsafe) numeric indices to access the columns.\n\nExample with data (based on original question):\n\nimport pandas as pd\n\ndf = pd.DataFrame({'ID':['1', '2', '3'], 'col_1': [0, 2, 3], 'col_2':[1, 4, 5]})\nmylist = ['a', 'b', 'c', 'd', 'e', 'f']\n\ndef get_sublist(sta,end):\n    return mylist[sta:end+1]\n\ndf['col_3'] = df.apply(lambda x: get_sublist(x.col_1, x.col_2), axis=1)\n\n\nOutput of print(df):\n\n  ID  col_1  col_2      col_3\n0  1      0      1     [a, b]\n1  2      2      4  [c, d, e]\n2  3      3      5  [d, e, f]\n\n\nIf your column names contain spaces or share a name with an existing dataframe attribute, you can index with square brackets:\n\ndf['col_3'] = df.apply(lambda x: f(x['col 1'], x['col 2']), axis=1)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13331698,
+      "answer_id": 52854800,
+      "question_score": 768,
+      "answer_score": 715,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "function",
+        "typeerror"
+      ]
+    }
+  },
+  {
+    "prompt": "Difference between map, applymap and apply methods in Pandas\n\nCan you tell me when to use these vectorization methods with basic examples? \n\nI see that map is a Series method whereas the rest are DataFrame methods. I got confused about apply and applymap methods though. Why do we have two methods for applying a function to a DataFrame? Again, simple examples which illustrate the usage would be great!",
+    "response": "Comparing map, applymap and apply: Context Matters\nThe major differences are:\nDefinition\n\nmap is defined on Series only\napplymap is defined on DataFrames only\napply is defined on both\n\nInput argument\n\nmap accepts dict, Series, or callable\napplymap and apply accept callable only\n\nBehavior\n\nmap is elementwise for Series\napplymap is elementwise for DataFrames\napply also works elementwise but is suited to more complex operations and aggregation. The behaviour and return value depends on the function.\n\nUse case (the most important difference)\n\nmap is meant for mapping values from one domain to another, so is optimised for performance, e.g.,\ndf['A'].map({1:'a', 2:'b', 3:'c'})\n\n\napplymap is good for elementwise transformations across multiple rows/columns, e.g.,\ndf[['A', 'B', 'C']].applymap(str.strip)\n\n\napply is for applying any function that cannot be vectorised, e.g.,\ndf['sentences'].apply(nltk.sent_tokenize)\n\n\n\nAlso see When should I (not) want to use pandas apply() in my code? for a write",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19798153,
+      "answer_id": 56300992,
+      "question_score": 756,
+      "answer_score": 372,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "vectorization"
+      ]
+    }
+  },
+  {
+    "prompt": "How to check if any value is NaN in a Pandas DataFrame\n\nHow do I check whether a pandas DataFrame has NaN values?\nI know about pd.isnan but it returns a DataFrame of booleans. I also found this post but it doesn't exactly answer my question either.",
+    "response": "jwilner's response is spot on. I was exploring to see if there's a faster option, since in my experience, summing flat arrays is (strangely) faster than counting. This code seems faster:\ndf.isnull().values.any()\n\n\nimport numpy as np\nimport pandas as pd\nimport perfplot\n\n\ndef setup(n):\n    df = pd.DataFrame(np.random.randn(n))\n    df[df > 0.9] = np.nan\n    return df\n\n\ndef isnull_any(df):\n    return df.isnull().any()\n\n\ndef isnull_values_sum(df):\n    return df.isnull().values.sum() > 0\n\n\ndef isnull_sum(df):\n    return df.isnull().sum() > 0\n\n\ndef isnull_values_any(df):\n    return df.isnull().values.any()\n\n\nperfplot.save(\n    \"out.png\",\n    setup=setup,\n    kernels=[isnull_any, isnull_values_sum, isnull_sum, isnull_values_any],\n    n_range=[2 ** k for k in range(25)],\n)\n\ndf.isnull().sum().sum() is a bit slower, but of course, has additional information -- the number of NaNs.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 29530232,
+      "answer_id": 29530601,
+      "question_score": 752,
+      "answer_score": 889,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "nan"
+      ]
+    }
+  },
+  {
+    "prompt": "How can I get a value from a cell of a dataframe?\n\nI have constructed a condition that extracts exactly one row from my dataframe:\nd2 = df[(df['l_ext']==l_ext) & (df['item']==item) & (df['wn']==wn) & (df['wd']==1)]\n\nNow I would like to take a value from a particular column:\nval = d2['col_name']\n\nBut as a result, I get a dataframe that contains one row and one column (i.e., one cell). It is not what I need. I need one value (one float number). How can I do it in pandas?",
+    "response": "If you have a DataFrame with only one row, then access the first (only) row as a Series using iloc, and then the value using the column name:\nIn [3]: sub_df\nOut[3]:\n          A         B\n2 -0.133653 -0.030854\n\nIn [4]: sub_df.iloc[0]\nOut[4]:\nA   -0.133653\nB   -0.030854\nName: 2, dtype: float64\n\nIn [5]: sub_df.iloc[0]['A']\nOut[5]: -0.13365288513107493",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 16729574,
+      "answer_id": 16729808,
+      "question_score": 751,
+      "answer_score": 836,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "filter"
+      ]
+    }
+  },
+  {
+    "prompt": "UnicodeDecodeError when reading CSV file in Pandas\n\nI'm running a program which is processing 30,000 similar files. A random number of them are stopping and producing this error...\n  File \"C:\\Importer\\src\\dfman\\importer.py\", line 26, in import_chr\n    data = pd.read_csv(filepath, names=fields)\n  File \"C:\\Python33\\lib\\site-packages\\pandas\\io\\parsers.py\", line 400, in parser_f\n    return _read(filepath_or_buffer, kwds)\n  File \"C:\\Python33\\lib\\site-packages\\pandas\\io\\parsers.py\", line 205, in _read\n    return parser.read()\n  File \"C:\\Python33\\lib\\si",
+    "response": "read_csv takes an encoding option to deal with files in different formats. I mostly use read_csv('file', encoding = \"ISO-8859-1\"), or alternatively encoding = \"utf-8\" for reading, and generally utf-8 for to_csv.\nYou can also use one of several alias options like 'latin' or 'cp1252' (Windows) instead of 'ISO-8859-1' (see python docs, also for numerous other encodings you may encounter).\nSee relevant Pandas documentation,\npython docs examples on csv files, and plenty of related questions here on SO. A good background resource is What every developer should know about unicode and character sets.\nTo detect the encoding (assuming the file contains non-ascii characters), you can use enca (see man page) or file -i (linux) or file -I (osx) (see man page).",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18171739,
+      "answer_id": 18172249,
+      "question_score": 718,
+      "answer_score": 1239,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "csv",
+        "dataframe",
+        "unicode"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I check if a pandas DataFrame is empty?\n\nHow do I check if a pandas DataFrame is empty? I'd like to print some message in the terminal if the DataFrame is empty.",
+    "response": "You can use the attribute df.empty to check whether it's empty or not:\nif df.empty:\n    print('DataFrame is empty!')\n\nSource: Pandas Documentation",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19828822,
+      "answer_id": 19828967,
+      "question_score": 718,
+      "answer_score": 1164,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "membership",
+        "any"
+      ]
+    }
+  },
+  {
+    "prompt": "Convert Pandas dataframe to NumPy array\n\nHow do I convert a Pandas dataframe into a NumPy array?\nimport numpy as np\nimport pandas as pd\n\ndf = pd.DataFrame(\n    {\n        'A': [np.nan, np.nan, np.nan, 0.1, 0.1, 0.1, 0.1],\n        'B': [0.2, np.nan, 0.2, 0.2, 0.2, np.nan, np.nan],\n        'C': [np.nan, 0.5, 0.5, np.nan, 0.5, 0.5, np.nan],\n    },\n    index=[1, 2, 3, 4, 5, 6, 7],\n).rename_axis('ID')\n\nThat gives this DataFrame:\n      A    B    C\nID                                 \n1   NaN  0.2  NaN\n2   NaN  NaN  0.5\n3   NaN  0.2  0.5\n4   0.",
+    "response": "Use df.to_numpy()\nIt's better than df.values, here's why.*\nIt's time to deprecate your usage of values and as_matrix().\npandas v0.24.0 introduced two new methods for obtaining NumPy arrays from pandas objects:\n\nto_numpy(), which is defined on Index, Series, and DataFrame objects, and\narray, which is defined on Index and Series objects only.\n\nIf you visit the v0.24 docs for .values, you will see a big red warning that says:\n\nWarning: We recommend using DataFrame.to_numpy() instead.\n\nSee this section of the v0.24.0 release notes, and this answer for more information.\n* - to_numpy() is my recommended method for any production code that needs to run reliably for many versions into the future. However if you're just making a scratchpad in jupyter or the terminal, using .values to save a few milliseconds of typing is a permissable exception. You can always add the fit n finish later.\n\n\nTowards Better Consistency: to_numpy()\nIn the spirit of better consistency throughout the API, a new method",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13187778,
+      "answer_id": 54508052,
+      "question_score": 717,
+      "answer_score": 633,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "arrays",
+        "pandas",
+        "numpy",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "pandas.parser.CParserError: Error tokenizing data\n\nI'm trying to use pandas to manipulate a .csv file but I get this error:\n\npandas.parser.CParserError: Error tokenizing data. C error: Expected 2 fields in line 3,  saw 12\n\nI have tried to read the pandas docs, but found nothing.\nMy code is simple:\npath = 'GOOG Key Ratios.csv'\n#print(open(path).read())\ndata = pd.read_csv(path)\n\nHow can I resolve this? Should I use the csv module or another language?",
+    "response": "you could also try;\ndata = pd.read_csv('file1.csv', on_bad_lines='skip')\n\nDo note that this will cause the offending lines to be skipped. If you don't expect many bad lines and want to (at least) know their amount and IDs, use on_bad_lines='warn'. For advanced handling of bads, you can pass a callable.\nEdit\nFor Pandas < 1.3.0 try\ndata = pd.read_csv(\"file1.csv\", error_bad_lines=False)\n\nas per pandas API reference.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18039057,
+      "answer_id": 18129082,
+      "question_score": 715,
+      "answer_score": 1069,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "csv",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "How to sort pandas dataframe by one column\n\nI have a dataframe like this:\n        0          1     2\n0   354.7      April   4.0\n1    55.4     August   8.0\n2   176.5   December  12.0\n3    95.5   February   2.0\n4    85.6    January   1.0\n5     152       July   7.0\n6   238.7       June   6.0\n7   104.8      March   3.0\n8   283.5        May   5.0\n9   278.8   November  11.0\n10  249.6    October  10.0\n11  212.7  September   9.0\n\nAs you can see, months are not in calendar order. So I created a second column to get the month number corresponding t",
+    "response": "Use sort_values to sort the df by a specific column's values:\n\nIn [18]:\ndf.sort_values('2')\n\nOut[18]:\n        0          1     2\n4    85.6    January   1.0\n3    95.5   February   2.0\n7   104.8      March   3.0\n0   354.7      April   4.0\n8   283.5        May   5.0\n6   238.7       June   6.0\n5   152.0       July   7.0\n1    55.4     August   8.0\n11  212.7  September   9.0\n10  249.6    October  10.0\n9   278.8   November  11.0\n2   176.5   December  12.0\n\n\nIf you want to sort by two columns, pass a list of column labels to sort_values with the column labels ordered according to sort priority.  If you use df.sort_values(['2', '0']), the result would be sorted by column 2 then column 0. Granted, this does not really make sense for this example because each value in df['2'] is unique.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 37787698,
+      "answer_id": 37787724,
+      "question_score": 710,
+      "answer_score": 861,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "sorting",
+        "datetime"
+      ]
+    }
+  },
+  {
+    "prompt": "How to delete rows from a pandas DataFrame based on a conditional expression\n\nI have a pandas DataFrame and I want to delete rows from it where the length of the string in a particular column is greater than 2.\n\nI expect to be able to do this (per this answer):\n\ndf[(len(df['column name']) < 2)]\n\n\nbut I just get the error:\n\nKeyError: u'no item named False'\n\n\nWhat am I doing wrong?\n\n(Note: I know I can use df.dropna() to get rid of rows that contain any NaN, but I didn't see how to remove rows based on a conditional expression.)",
+    "response": "When you do len(df['column name']) you are just getting one number, namely the number of rows in the DataFrame (i.e., the length of the column itself).  If you want to apply len to each element in the column, use df['column name'].map(len).  So try\n\ndf[df['column name'].map(len) < 2]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13851535,
+      "answer_id": 13851602,
+      "question_score": 703,
+      "answer_score": 280,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "Converting a Pandas GroupBy multiindex output from Series back to DataFrame\n\nI have a dataframe:\n   City     Name\n0   Seattle    Alice\n1   Seattle      Bob\n2  Portland  Mallory\n3   Seattle  Mallory\n4   Seattle      Bob\n5  Portland  Mallory\n\nI perform the following grouping:\ng1 = df1.groupby([\"Name\", \"City\"]).count()\n\nwhich when printed looks like:\n                  City  Name\nName    City\nAlice   Seattle      1     1\nBob     Seattle      2     2\nMallory Portland     2     2\n        Seattle      1     1\n\nBut what I want eventually is another DataFrame object that contains",
+    "response": "g1 here is a DataFrame. It has a hierarchical index, though:\n\nIn [19]: type(g1)\nOut[19]: pandas.core.frame.DataFrame\n\nIn [20]: g1.index\nOut[20]: \nMultiIndex([('Alice', 'Seattle'), ('Bob', 'Seattle'), ('Mallory', 'Portland'),\n       ('Mallory', 'Seattle')], dtype=object)\n\n\nPerhaps you want something like this?\n\nIn [21]: g1.add_suffix('_Count').reset_index()\nOut[21]: \n      Name      City  City_Count  Name_Count\n0    Alice   Seattle           1           1\n1      Bob   Seattle           2           2\n2  Mallory  Portland           2           2\n3  Mallory   Seattle           1           1\n\n\nOr something like:\n\nIn [36]: DataFrame({'count' : df1.groupby( [ \"Name\", \"City\"] ).size()}).reset_index()\nOut[36]: \n      Name      City  count\n0    Alice   Seattle      1\n1      Bob   Seattle      2\n2  Mallory  Portland      2\n3  Mallory   Seattle      1",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 10373660,
+      "answer_id": 10374456,
+      "question_score": 695,
+      "answer_score": 708,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "group-by",
+        "multi-index"
+      ]
+    }
+  },
+  {
+    "prompt": "How to replace NaN values in a dataframe column\n\nI have a Pandas Dataframe as below:\n      itm Date                  Amount \n67    420 2012-09-30 00:00:00   65211\n68    421 2012-09-09 00:00:00   29424\n69    421 2012-09-16 00:00:00   29877\n70    421 2012-09-23 00:00:00   30990\n71    421 2012-09-30 00:00:00   61303\n72    485 2012-09-09 00:00:00   71781\n73    485 2012-09-16 00:00:00     NaN\n74    485 2012-09-23 00:00:00   11072\n75    485 2012-09-30 00:00:00  113702\n76    489 2012-09-09 00:00:00   64731\n77    489 2012-09-16 00:00:00     NaN\n\nWhen ",
+    "response": "DataFrame.fillna() or Series.fillna() will do this for you.\nExample:\nIn [7]: df\nOut[7]: \n          0         1\n0       NaN       NaN\n1 -0.494375  0.570994\n2       NaN       NaN\n3  1.876360 -0.229738\n4       NaN       NaN\n\nIn [8]: df.fillna(0)\nOut[8]: \n          0         1\n0  0.000000  0.000000\n1 -0.494375  0.570994\n2  0.000000  0.000000\n3  1.876360 -0.229738\n4  0.000000  0.000000\n\nTo fill the NaNs in only one column, select just that column.\nIn [12]: df[1] = df[1].fillna(0)\n\nIn [13]: df\nOut[13]: \n          0         1\n0       NaN  0.000000\n1 -0.494375  0.570994\n2       NaN  0.000000\n3  1.876360 -0.229738\n4       NaN  0.000000\n\nOr you can use the built in column-specific functionality:\ndf = df.fillna({1: 0})",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13295735,
+      "answer_id": 13295801,
+      "question_score": 678,
+      "answer_score": 1019,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "nan",
+        "fillna"
+      ]
+    }
+  },
+  {
+    "prompt": "How to check if a column exists in Pandas\n\nHow do I check if a column exists in a Pandas DataFrame df?\n   A   B    C\n0  3  40  100\n1  6  30  200\n\nHow would I check if the column \"A\" exists in the above DataFrame so that I can compute:\ndf['sum'] = df['A'] + df['C']\n\nAnd if \"A\" doesn't exist:\ndf['sum'] = df['B'] + df['C']",
+    "response": "This will work:\n\nif 'A' in df:\n\n\nBut for clarity, I'd probably write it as:\n\nif 'A' in df.columns:",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 24870306,
+      "answer_id": 24870404,
+      "question_score": 663,
+      "answer_score": 1282,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "membership",
+        "any"
+      ]
+    }
+  },
+  {
+    "prompt": "Create new column based on values from other columns / apply a function of multiple columns, row-wise in Pandas\n\nI want to apply my custom function (it uses an if-else ladder) to these six columns (ERI_Hispanic, ERI_AmerInd_AKNatv, ERI_Asian, ERI_Black_Afr.Amer, ERI_HI_PacIsl, ERI_White) in each row of my dataframe.\nI've tried different methods from other questions but still can't seem to find the right answer for my problem.  The critical piece of this is that if the person is counted as Hispanic they can't be counted as anything else.  Even if they have a \"1\" in another ethnicity column they still are co",
+    "response": "OK, two steps to this - first is to write a function that does the translation you want - I've put an example together based on your pseudo-code:\ndef label_race(row):\n   if row['eri_hispanic'] == 1:\n      return 'Hispanic'\n   if row['eri_afr_amer'] + row['eri_asian'] + row['eri_hawaiian'] + row['eri_nat_amer'] + row['eri_white'] > 1:\n      return 'Two Or More'\n   if row['eri_nat_amer'] == 1:\n      return 'A/I AK Native'\n   if row['eri_asian'] == 1:\n      return 'Asian'\n   if row['eri_afr_amer'] == 1:\n      return 'Black/AA'\n   if row['eri_hawaiian'] == 1:\n      return 'Haw/Pac Isl.'\n   if row['eri_white'] == 1:\n      return 'White'\n   return 'Other'\n\nYou may want to go over this, but it seems to do the trick - notice that the parameter going into the function is considered to be a Series object labelled \"row\".\nNext, use the apply function in pandas to apply the function - e.g.\ndf.apply(label_race, axis=1)\n\nNote the axis=1 specifier, that means that the application is done at a row, rat",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 26886653,
+      "answer_id": 26887820,
+      "question_score": 647,
+      "answer_score": 795,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "conditional-statements",
+        "switch-statement"
+      ]
+    }
+  },
+  {
+    "prompt": "How can I pivot a dataframe?\n\nHow do I pivot the pandas dataframe below such that the col values become columns, row values become the index, and mean of val0 becomes the values? (In some cases this is called transforming from long-format to wide-format.)\nConsider a dataframe df with columns 'key', 'row', 'item', 'col', and random float values 'val0', 'val1'. I conspicuously named the columns and relevant column values to correspond with how I want to pivot them. (Setup code at bottom.)\n     key   row   item   col  val0  val",
+    "response": "Here is a list of idioms we can use to pivot\n\npd.DataFrame.pivot_table\n\nA glorified version of groupby with more intuitive API.  For many people, this is the preferred approach.  And it is the intended approach by the developers.\nSpecify row level, column levels, values to be aggregated, and function(s) to perform aggregations.\n\n\npd.DataFrame.groupby + pd.DataFrame.unstack\n\nGood general approach for doing just about any type of pivot\nYou specify all columns that will constitute the pivoted row levels and column levels in one group by.  You follow that by selecting the remaining columns you want to aggregate and the function(s) you want to perform the aggregation.  Finally, you unstack the levels that you want to be in the column index.\n\n\npd.DataFrame.set_index + pd.DataFrame.unstack\n\nConvenient and intuitive for some (myself included).  Cannot handle duplicate grouped keys.\nSimilar to the groupby paradigm, we specify all columns that will eventually be either row or column levels and s",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 47152691,
+      "answer_id": 47152692,
+      "question_score": 630,
+      "answer_score": 481,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "group-by",
+        "pivot",
+        "pivot-table"
+      ]
+    }
+  },
+  {
+    "prompt": "Remap values in pandas column with a dict, preserve NaNs\n\nI have a dictionary which looks like this: di = {1: \"A\", 2: \"B\"}\nI would like to apply it to the col1 column of a dataframe similar to:\n     col1   col2\n0       w      a\n1       1      2\n2       2    NaN\n\nto get:\n     col1   col2\n0       w      a\n1       A      2\n2       B    NaN\n\nHow can I best do this?",
+    "response": "You can use .replace.  For example:\n\n>>> df = pd.DataFrame({'col2': {0: 'a', 1: 2, 2: np.nan}, 'col1': {0: 'w', 1: 1, 2: 2}})\n>>> di = {1: \"A\", 2: \"B\"}\n>>> df\n  col1 col2\n0    w    a\n1    1    2\n2    2  NaN\n>>> df.replace({\"col1\": di})\n  col1 col2\n0    w    a\n1    A    2\n2    B  NaN\n\n\nor directly on the Series, i.e. df[\"col1\"].replace(di, inplace=True).",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20250771,
+      "answer_id": 20250996,
+      "question_score": 616,
+      "answer_score": 626,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "dictionary",
+        "replace"
+      ]
+    }
+  },
+  {
+    "prompt": "Convert Python dict into a dataframe\n\nI have a Python dictionary:\n{u'2012-07-01': 391,\n u'2012-07-02': 392,\n u'2012-07-03': 392,\n u'2012-07-04': 392,\n u'2012-07-05': 392,\n u'2012-07-06': 392}\n\nI would like to convert this into a pandas dataframe by having the dates and their corresponding values as two separate columns; the expected result looks like:\n     Date         DateValue\n0    2012-07-01    391\n1    2012-07-02    392\n2    2012-07-03    392\n.    2012-07-04    392\n.    ...           ...\n\nIs there a direct way to do this?",
+    "response": "The error here, is since calling the DataFrame constructor with scalar values (where it expects values to be a list/dict/... i.e. have multiple columns):\npd.DataFrame(d)\nValueError: If using all scalar values, you must must pass an index\n\nYou could take the items from the dictionary (i.e. the key-value pairs):\nIn [11]: pd.DataFrame(d.items())  # or list(d.items()) in python 3\nOut[11]:\n            0    1\n0  2012-07-01  391\n1  2012-07-02  392\n2  2012-07-03  392\n3  2012-07-04  392\n4  2012-07-05  392\n5  2012-07-06  392\n\nIn [12]: pd.DataFrame(d.items(), columns=['Date', 'DateValue'])\nOut[12]:\n         Date  DateValue\n0  2012-07-01        391\n1  2012-07-02        392\n2  2012-07-03        392\n3  2012-07-04        392\n4  2012-07-05        392\n5  2012-07-06        392\n\nBut I think it makes more sense to pass the Series constructor:\nIn [20]: s = pd.Series(d, name='DateValue')\n\nIn [21]: s\nOut[21]:\n2012-07-01    391\n2012-07-02    392\n2012-07-03    392\n2012-07-04    392\n2012-07-05    392\n2012-07-06",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18837262,
+      "answer_id": 18837389,
+      "question_score": 612,
+      "answer_score": 897,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "dictionary"
+      ]
+    }
+  },
+  {
+    "prompt": "Pandas read_csv: low_memory and dtype options\n\ndf = pd.read_csv('somefile.csv')\n\n...gives an error:\n\n.../site-packages/pandas/io/parsers.py:1130:\nDtypeWarning: Columns (4,5,7,16) have mixed types.  Specify dtype\noption on import or set low_memory=False.\n\nWhy is the dtype option related to low_memory, and why might low_memory=False help?",
+    "response": "The deprecated low_memory option\nThe low_memory option is not properly deprecated, but it should be, since it does not actually do anything differently[source]\nThe reason you get this low_memory warning is because guessing dtypes for each column is very memory demanding. Pandas tries to determine what dtype to set by analyzing the data in each column.\nDtype Guessing (very bad)\nPandas can only determine what dtype a column should have once the whole file is read. This means nothing can really be parsed before the whole file is read unless you risk having to change the dtype of that column when you read the last value.\nConsider the example of one file which has a column called user_id.\nIt contains 10 million rows where the user_id is always numbers.\nSince pandas cannot know it is only numbers, it will probably keep it as the original strings until it has read the whole file.\nSpecifying dtypes (should always be done)\nadding\ndtype={'user_id': int}\n\nto the pd.read_csv() call will make panda",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 24251219,
+      "answer_id": 27232309,
+      "question_score": 599,
+      "answer_score": 751,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "parsing",
+        "numpy",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Improve subplot size/spacing with many subplots\n\nI need to generate a whole bunch of vertically-stacked plots in matplotlib. The result will be saved using savefig and viewed on a webpage, so I don't care how tall the final image is, as long as the subplots are spaced so they don't overlap.\nNo matter how big I allow the figure to be, the subplots always seem to overlap.\nMy code currently looks like\nimport matplotlib.pyplot as plt\nimport my_other_module\n\ntitles, x_lists, y_lists = my_other_module.get_data()\n\nfig = plt.figure(figsize=(10,60))\nfo",
+    "response": "Please review matplotlib: Tight Layout guide and try using matplotlib.pyplot.tight_layout, or matplotlib.figure.Figure.tight_layout\nAs a quick example:\nimport matplotlib.pyplot as plt\n\nfig, axes = plt.subplots(nrows=4, ncols=4, figsize=(8, 8))\nfig.tight_layout() # Or equivalently,  \"plt.tight_layout()\"\n\nplt.show()\n\n\nWithout Tight Layout\n\n\nWith Tight Layout",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 6541123,
+      "answer_id": 9827848,
+      "question_score": 596,
+      "answer_score": 787,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "matplotlib",
+        "seaborn",
+        "subplot"
+      ]
+    }
+  },
+  {
+    "prompt": "Filter dataframe rows if value in column is in a set list of values\n\nI have a Python pandas DataFrame rpt:\n\nrpt\n<class 'pandas.core.frame.DataFrame'>\nMultiIndex: 47518 entries, ('000002', '20120331') to ('603366', '20091231')\nData columns:\nSTK_ID                    47518  non-null values\nSTK_Name                  47518  non-null values\nRPT_Date                  47518  non-null values\nsales                     47518  non-null values\n\n\nI can filter the rows whose stock id is '600809' like this: rpt[rpt['STK_ID'] == '600809']\n\n<class 'pandas.core.frame.DataFrame'>\nM",
+    "response": "Use the isin method: \n\nrpt[rpt['STK_ID'].isin(stk_list)]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 12065885,
+      "answer_id": 12065904,
+      "question_score": 596,
+      "answer_score": 882,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "How to group dataframe rows into list in pandas groupby\n\nGiven a dataframe, I want to groupby the first column and get second column as lists in rows, so that a dataframe like:\na b\nA 1\nA 2\nB 5\nB 5\nB 4\nC 6\n\nbecomes\nA [1,2]\nB [5,5,4]\nC [6]\n\nHow do I do this?",
+    "response": "You can do this using groupby to group on the column of interest and then apply list to every group:\n\nIn [1]: df = pd.DataFrame( {'a':['A','A','B','B','B','C'], 'b':[1,2,5,5,4,6]})\n        df\n\nOut[1]: \n   a  b\n0  A  1\n1  A  2\n2  B  5\n3  B  5\n4  B  4\n5  C  6\n\nIn [2]: df.groupby('a')['b'].apply(list)\nOut[2]: \na\nA       [1, 2]\nB    [5, 5, 4]\nC          [6]\nName: b, dtype: object\n\nIn [3]: df1 = df.groupby('a')['b'].apply(list).reset_index(name='new')\n        df1\nOut[3]: \n   a        new\n0  A     [1, 2]\n1  B  [5, 5, 4]\n2  C        [6]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 22219004,
+      "answer_id": 22221675,
+      "question_score": 594,
+      "answer_score": 793,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "list",
+        "group-by",
+        "aggregate"
+      ]
+    }
+  },
+  {
+    "prompt": "Get list from pandas dataframe column or row?\n\nI have a dataframe df imported from an Excel document like this:\ncluster load_date   budget  actual  fixed_price\nA   1/1/2014    1000    4000    Y\nA   2/1/2014    12000   10000   Y\nA   3/1/2014    36000   2000    Y\nB   4/1/2014    15000   10000   N\nB   4/1/2014    12000   11500   N\nB   4/1/2014    90000   11000   N\nC   7/1/2014    22000   18000   N\nC   8/1/2014    30000   28960   N\nC   9/1/2014    53000   51200   N\n\nI want to be able to return the contents of column 1 df['cluster'] as a list, so",
+    "response": "Pandas DataFrame columns are Pandas Series when you pull them out, which you can then call x.tolist() on to turn them into a Python list. Alternatively you cast it with list(x).\nimport pandas as pd\n\ndata_dict = {'one': pd.Series([1, 2, 3], index=['a', 'b', 'c']),\n             'two': pd.Series([1, 2, 3, 4], index=['a', 'b', 'c', 'd'])}\n\ndf = pd.DataFrame(data_dict)\n\nprint(f\"DataFrame:\\n{df}\\n\")\nprint(f\"column types:\\n{df.dtypes}\")\n\ncol_one_list = df['one'].tolist()\n\ncol_one_arr = df['one'].to_numpy()\n\nprint(f\"\\ncol_one_list:\\n{col_one_list}\\ntype:{type(col_one_list)}\")\nprint(f\"\\ncol_one_arr:\\n{col_one_arr}\\ntype:{type(col_one_arr)}\")\n\nOutput:\nDataFrame:\n   one  two\na  1.0    1\nb  2.0    2\nc  3.0    3\nd  NaN    4\n\ncolumn types:\none    float64\ntwo      int64\ndtype: object\n\ncol_one_list:\n[1.0, 2.0, 3.0, nan]\ntype:<class 'list'>\n\ncol_one_arr:\n[ 1.  2.  3. nan]\ntype:<class 'numpy.ndarray'>",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 22341271,
+      "answer_id": 22341390,
+      "question_score": 594,
+      "answer_score": 942,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "list",
+        "type-conversion"
+      ]
+    }
+  },
+  {
+    "prompt": "How to reset index in a pandas dataframe?\n\nI have a dataframe from which I remove some rows. As a result, I get a dataframe in which index is something like [1,5,6,10,11] and I would like to reset it to [0,1,2,3,4]. How can I do it?\n\nThe following seems to work:\ndf = df.reset_index()\ndel df['index']\n\nThe following does not work:\ndf = df.reindex()",
+    "response": "DataFrame.reset_index is what you're looking for. If you don't want it saved as a column, then do:\ndf = df.reset_index(drop=True)\n\nIf you don't want to reassign:\ndf.reset_index(drop=True, inplace=True)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20490274,
+      "answer_id": 20491748,
+      "question_score": 589,
+      "answer_score": 1167,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "indexing",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Selecting a row of pandas series/dataframe by integer index\n\nI am curious as to why df[2] is not supported, while df.ix[2] and df[2:3] both work. \n\nIn [26]: df.ix[2]\nOut[26]: \nA    1.027680\nB    1.514210\nC   -1.466963\nD   -0.162339\nName: 2000-01-03 00:00:00\n\nIn [27]: df[2:3]\nOut[27]: \n                  A        B         C         D\n2000-01-03  1.02768  1.51421 -1.466963 -0.162339\n\n\nI would expect df[2] to work the same way as df[2:3] to be consistent with Python indexing convention. Is there a design reason for not supporting indexing row by single integ",
+    "response": "echoing @HYRY, see the new docs in 0.11\n\nhttp://pandas.pydata.org/pandas-docs/stable/indexing.html\n\nHere we have new operators, .iloc to explicity support only integer indexing, and .loc to explicity support only label indexing\n\ne.g. imagine this scenario\n\nIn [1]: df = pd.DataFrame(np.random.rand(5,2),index=range(0,10,2),columns=list('AB'))\n\nIn [2]: df\nOut[2]: \n          A         B\n0  1.068932 -0.794307\n2 -0.470056  1.192211\n4 -0.284561  0.756029\n6  1.037563 -0.267820\n8 -0.538478 -0.800654\n\nIn [5]: df.iloc[[2]]\nOut[5]: \n          A         B\n4 -0.284561  0.756029\n\nIn [6]: df.loc[[2]]\nOut[6]: \n          A         B\n2 -0.470056  1.192211\n\n\n[] slices the rows (by label location) only",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 16096627,
+      "answer_id": 16104482,
+      "question_score": 589,
+      "answer_score": 814,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "filter"
+      ]
+    }
+  },
+  {
+    "prompt": "How can I use the apply() function for a single column?\n\nI have a pandas dataframe with multiple columns. I want to change the values of the only the first column without affecting the other columns. How can I do that using apply() in pandas?",
+    "response": "Given a sample dataframe df as:\n   a  b\n0  1  2\n1  2  3\n2  3  4\n3  4  5\n\nwhat you want is:\ndf['a'] = df['a'].apply(lambda x: x + 1)\n\nthat returns:\n   a  b\n0  2  2\n1  3  3\n2  4  4\n3  5  5",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 34962104,
+      "answer_id": 34962199,
+      "question_score": 587,
+      "answer_score": 709,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "numpy",
+        "apply"
+      ]
+    }
+  },
+  {
+    "prompt": "How to select all columns except one in pandas?\n\nI have a dataframe that look like this:\n          a         b         c         d\n0  0.418762  0.042369  0.869203  0.972314\n1  0.991058  0.510228  0.594784  0.534366\n2  0.407472  0.259811  0.396664  0.894202\n3  0.726168  0.139531  0.324932  0.906575\n\nHow I can get all columns except b?",
+    "response": "When the columns are not a MultiIndex, df.columns is just an array of column names so you can do:\n\ndf.loc[:, df.columns != 'b']\n\n          a         c         d\n0  0.561196  0.013768  0.772827\n1  0.882641  0.615396  0.075381\n2  0.368824  0.651378  0.397203\n3  0.788730  0.568099  0.869127",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 29763620,
+      "answer_id": 29763653,
+      "question_score": 586,
+      "answer_score": 804,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "select",
+        "filter"
+      ]
+    }
+  },
+  {
+    "prompt": "How to flatten a hierarchical index in columns\n\nI have a data frame with a hierarchical index in axis 1 (columns) (from a groupby.agg operation):\n\n     USAF   WBAN  year  month  day  s_PC  s_CL  s_CD  s_CNT  tempf       \n                                     sum   sum   sum    sum   amax   amin\n0  702730  26451  1993      1    1     1     0    12     13  30.92  24.98\n1  702730  26451  1993      1    2     0     0    13     13  32.00  24.98\n2  702730  26451  1993      1    3     1    10     2     13  23.00   6.98\n3  702730  26451  1993      1  ",
+    "response": "I think the easiest way to do this would be to set the columns to the top level:\n\ndf.columns = df.columns.get_level_values(0)\n\n\nNote: if the to level has a name you can also access it by this, rather than 0.\n\n.\n\nIf you want to combine/join your MultiIndex into one Index (assuming you have just string entries in your columns) you could:\n\ndf.columns = [' '.join(col).strip() for col in df.columns.values]\n\n\nNote: we must strip the whitespace for when there is no second index.\n\nIn [11]: [' '.join(col).strip() for col in df.columns.values]\nOut[11]: \n['USAF',\n 'WBAN',\n 'day',\n 'month',\n 's_CD sum',\n 's_CL sum',\n 's_CNT sum',\n 's_PC sum',\n 'tempf amax',\n 'tempf amin',\n 'year']",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 14507794,
+      "answer_id": 14508355,
+      "question_score": 577,
+      "answer_score": 768,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "multi-index"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I create test and train samples from one dataframe with pandas?\n\nI have a fairly large dataset in the form of a dataframe and I was wondering how I would be able to split the dataframe into two random samples (80% and 20%) for training and testing.\n\nThanks!",
+    "response": "I would just use numpy's randn:\n\nIn [11]: df = pd.DataFrame(np.random.randn(100, 2))\n\nIn [12]: msk = np.random.rand(len(df)) < 0.8\n\nIn [13]: train = df[msk]\n\nIn [14]: test = df[~msk]\n\n\nAnd just to see this has worked:\n\nIn [15]: len(test)\nOut[15]: 21\n\nIn [16]: len(train)\nOut[16]: 79",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 24147278,
+      "answer_id": 24147363,
+      "question_score": 563,
+      "answer_score": 486,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "python-2.7",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Python Pandas: Get index of rows where column matches certain value\n\nGiven a DataFrame with a column \"BoolCol\", we want to find the indexes of the DataFrame in which the values for \"BoolCol\" == True\nI currently have the iterating way to do it, which works perfectly:\nfor i in range(100,3000):\n    if df.iloc[i]['BoolCol']== True:\n         print i,df.iloc[i]['BoolCol']\n\nBut this is not the correct pandas way to do it. After some research, I am currently using this code:\ndf[df['BoolCol'] == True].index.tolist()\n\nThis one gives me a list of indexes, but they don't mat",
+    "response": "df.iloc[i] returns the ith row of df. i does not refer to the index label, i is a 0-based index.\n\nIn contrast, the attribute index returns actual index labels, not numeric row-indices:\n\ndf.index[df['BoolCol'] == True].tolist()\n\n\nor equivalently,\n\ndf.index[df['BoolCol']].tolist()\n\n\nYou can see the difference quite clearly by playing with a DataFrame with\na non-default index that does not equal to the row's numerical position:\n\ndf = pd.DataFrame({'BoolCol': [True, False, False, True, True]},\n       index=[10,20,30,40,50])\n\nIn [53]: df\nOut[53]: \n   BoolCol\n10    True\n20   False\n30   False\n40    True\n50    True\n\n[5 rows x 1 columns]\n\nIn [54]: df.index[df['BoolCol']].tolist()\nOut[54]: [10, 40, 50]\n\n\n\n\nIf you want to use the index, \n\nIn [56]: idx = df.index[df['BoolCol']]\n\nIn [57]: idx\nOut[57]: Int64Index([10, 40, 50], dtype='int64')\n\n\nthen you can select the rows using loc instead of iloc:\n\nIn [58]: df.loc[idx]\nOut[58]: \n   BoolCol\n10    True\n40    True\n50    True\n\n[3 rows x 1 columns]\n\n\n\n\n",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 21800169,
+      "answer_id": 21800319,
+      "question_score": 561,
+      "answer_score": 814,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing"
+      ]
+    }
+  },
+  {
+    "prompt": "Pandas: Get first row value of a given column\n\nThis seems like a ridiculously easy question... but I'm not seeing the easy answer I was expecting.\nSo, how do I get the value at an nth row of a given column in Pandas? (I am particularly interested in the first row, but would be interested in a more general practice as well).\nFor example, let's say I want to pull the 1.2 value in Btime as a variable.\nWhats the right way to do this?\n>>> df_test\n    ATime   X   Y   Z   Btime  C   D   E\n0    1.2  2  15   2    1.2  12  25  12\n1    1.4  3  12   1  ",
+    "response": "To select the ith row, use iloc:\n\nIn [31]: df_test.iloc[0]\nOut[31]: \nATime     1.2\nX         2.0\nY        15.0\nZ         2.0\nBtime     1.2\nC        12.0\nD        25.0\nE        12.0\nName: 0, dtype: float64\n\n\nTo select the ith value in the Btime column you could use:\n\nIn [30]: df_test['Btime'].iloc[0]\nOut[30]: 1.2\n\n\n\n\nThere is a difference between df_test['Btime'].iloc[0] (recommended) and df_test.iloc[0]['Btime']:\n\nDataFrames store data in column-based blocks (where each block has a single\ndtype). If you select by column first, a view can be returned (which is\nquicker than returning a copy) and the original dtype is preserved. In contrast,\nif you select by row first, and if the DataFrame has columns of different\ndtypes, then Pandas copies the data into a new Series of object dtype. So\nselecting columns is a bit faster than selecting rows. Thus, although\ndf_test.iloc[0]['Btime'] works, df_test['Btime'].iloc[0] is a little bit\nmore efficient.\n\nThere is a big difference between the two whe",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 25254016,
+      "answer_id": 25254087,
+      "question_score": 554,
+      "answer_score": 852,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "indexing"
+      ]
+    }
+  },
+  {
+    "prompt": "Selecting/excluding sets of columns in pandas\n\nI would like to create views or dataframes from an existing dataframe based on column selections.\n\nFor example, I would like to create a dataframe df2 from a dataframe df1 that holds all columns from it except two of them. I tried doing the following, but it didn't work:\n\nimport numpy as np\nimport pandas as pd\n\n# Create a dataframe with columns A,B,C and D\ndf = pd.DataFrame(np.random.randn(100, 4), columns=list('ABCD'))\n\n# Try to create a second dataframe df2 from df with all columns except 'B' ",
+    "response": "You can either Drop the columns you do not need OR Select the ones you need\n\n# Using DataFrame.drop\ndf.drop(df.columns[[1, 2]], axis=1, inplace=True)\n\n# drop by Name\ndf1 = df1.drop(['B', 'C'], axis=1)\n\n# Select the ones you want\ndf1 = df[['a','d']]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 14940743,
+      "answer_id": 29319200,
+      "question_score": 536,
+      "answer_score": 745,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "How to add an empty column to a dataframe?\n\nWhat's the easiest way to add an empty column to a pandas DataFrame object?  The best I've stumbled upon is something like\ndf['foo'] = df.apply(lambda _: '', axis=1)\n\nIs there a less perverse method?",
+    "response": "If I understand correctly, assignment should fill:\n\n>>> import numpy as np\n>>> import pandas as pd\n>>> df = pd.DataFrame({\"A\": [1,2,3], \"B\": [2,3,4]})\n>>> df\n   A  B\n0  1  2\n1  2  3\n2  3  4\n>>> df[\"C\"] = \"\"\n>>> df[\"D\"] = np.nan\n>>> df\n   A  B C   D\n0  1  2   NaN\n1  2  3   NaN\n2  3  4   NaN",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 16327055,
+      "answer_id": 16327135,
+      "question_score": 530,
+      "answer_score": 775,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "variable-assignment"
+      ]
+    }
+  },
+  {
+    "prompt": "How to sort a pandas dataFrame by two or more columns?\n\nSuppose I have a dataframe with columns a, b and c. I want to sort the dataframe by column b in ascending order, and by column c in descending order. How do I do this?",
+    "response": "As of the 0.17.0 release, the sort method was deprecated in favor of sort_values.  sort was completely removed in the 0.20.0 release. The arguments (and results) remain the same:\n\ndf.sort_values(['a', 'b'], ascending=[True, False])\n\n\n\n\nYou can use the ascending argument of sort:\n\ndf.sort(['a', 'b'], ascending=[True, False])\n\n\nFor example:\n\nIn [11]: df1 = pd.DataFrame(np.random.randint(1, 5, (10,2)), columns=['a','b'])\n\nIn [12]: df1.sort(['a', 'b'], ascending=[True, False])\nOut[12]:\n   a  b\n2  1  4\n7  1  3\n1  1  2\n3  1  2\n4  3  2\n6  4  4\n0  4  3\n9  4  3\n5  4  1\n8  4  1\n\n\n\n\nAs commented by @renadeen\n\n\n  Sort isn't in place by default! So you should assign result of the sort method to a variable or add inplace=True to method call.\n\n\nthat is, if you want to reuse df1 as a sorted DataFrame:\n\ndf1 = df1.sort(['a', 'b'], ascending=[True, False])\n\n\nor\n\ndf1.sort(['a', 'b'], ascending=[True, False], inplace=True)",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 17141558,
+      "answer_id": 17141755,
+      "question_score": 529,
+      "answer_score": 922,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "python-2.7",
+        "sorting",
+        "data-analysis"
+      ]
+    }
+  },
+  {
+    "prompt": "Sorting columns in pandas dataframe based on column name\n\nI have a dataframe with over 200 columns. The issue is as they were generated the order is\n['Q1.3','Q6.1','Q1.2','Q1.1',......]\n\nI need to sort the columns as follows:\n['Q1.1','Q1.2','Q1.3',.....'Q6.1',......]\n\nIs there some way for me to do this within Python?",
+    "response": "df = df.reindex(sorted(df.columns), axis=1)\n\n\nThis assumes that sorting the column names will give the order you want.  If your column names won't sort lexicographically (e.g., if you want column Q10.3 to appear after Q9.1), you'll need to sort differently, but that has nothing to do with pandas.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 11067027,
+      "answer_id": 11067072,
+      "question_score": 525,
+      "answer_score": 668,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Count the frequency that a value occurs in a dataframe column\n\nI have a dataset\ncategory\ncat a\ncat b\ncat a\n\nI'd like to return something like the following which shows the unique values and their frequencies\ncategory   freq \ncat a       2\ncat b       1",
+    "response": "Use value_counts() as @DSM commented.\nIn [37]:\ndf = pd.DataFrame({'a':list('abssbab')})\ndf['a'].value_counts()\n\nOut[37]:\n\nb    3\na    2\ns    2\ndtype: int64\n\nAlso groupby and count. Many ways to skin a cat here.\nIn [38]:\ndf.groupby('a').count()\n\nOut[38]:\n\n   a\na   \na  2\nb  3\ns  2\n\n[3 rows x 1 columns]\n\nSee the online docs.\nIf you wanted to add frequency back to the original dataframe use transform to return an aligned index:\nIn [41]:\ndf['freq'] = df.groupby('a')['a'].transform('count')\ndf\n\nOut[41]:\n\n   a freq\n0  a    2\n1  b    3\n2  s    2\n3  s    2\n4  b    3\n5  a    2\n6  b    3\n\n[7 rows x 2 columns]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 22391433,
+      "answer_id": 22391554,
+      "question_score": 522,
+      "answer_score": 698,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "group-by",
+        "count",
+        "frequency"
+      ]
+    }
+  },
+  {
+    "prompt": "What does `ValueError: cannot reindex from a duplicate axis` mean?\n\nI am getting a ValueError: cannot reindex from a duplicate axis when I am trying to set an index to a certain value. I tried to reproduce this with a simple example, but I could not do it.\n\nHere is my session inside of ipdb trace. I have a DataFrame with string index, and integer columns, float values. However when I try to create sum index for sum of all columns I am getting ValueError: cannot reindex from a duplicate axis error. I created a small DataFrame with the same characteristics, but wa",
+    "response": "This error usually rises when you join / assign to a column when the index has duplicate values. Since you are assigning to a row, I suspect that there is a duplicate value in affinity_matrix.columns, perhaps not shown in your question.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 27236275,
+      "answer_id": 27242735,
+      "question_score": 520,
+      "answer_score": 334,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "How can I display full (non-truncated) dataframe information in HTML when converting from Pandas dataframe to HTML?\n\nI converted a Pandas dataframe to an HTML output using the DataFrame.to_html function. When I save this to a separate HTML file, the file shows truncated output.\nFor example, in my TEXT column,\ndf.head(1) will show\nThe film was an excellent effort...\ninstead of\nThe film was an excellent effort in deconstructing the complex social sentiments that prevailed during this period.\nThis rendition is fine in the case of a screen-friendly format of a massive Pandas dataframe, but I need an HTML file that",
+    "response": "Set the display.max_colwidth option to None (or -1 before version 1.0):\npd.set_option('display.max_colwidth', None)\n\nset_option documentation\nFor example, in IPython, we see that the information is truncated to 50 characters. Anything in excess is ellipsized:\n\nIf you set the display.max_colwidth option, the information will be displayed fully:",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 25351968,
+      "answer_id": 25352191,
+      "question_score": 514,
+      "answer_score": 839,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "html",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "Get the row(s) which have the max value in groups using groupby\n\nHow do I find all rows in a pandas DataFrame which have the max value for count column, after grouping by ['Sp','Mt'] columns?\nExample 1: the following DataFrame:\n   Sp   Mt Value   count\n0  MM1  S1   a     **3**\n1  MM1  S1   n       2\n2  MM1  S3   cb    **5**\n3  MM2  S3   mk    **8**\n4  MM2  S4   bg    **10**\n5  MM2  S4   dgd     1\n6  MM4  S2   rd      2\n7  MM4  S2   cb      2\n8  MM4  S2   uyi   **7**\n\nExpected output is to get the result rows whose count is max in each group, like this:\n   Sp ",
+    "response": "Firstly, we can get the max count for each group like this:\nIn [1]: df\nOut[1]:\n    Sp  Mt Value  count\n0  MM1  S1     a      3\n1  MM1  S1     n      2\n2  MM1  S3    cb      5\n3  MM2  S3    mk      8\n4  MM2  S4    bg     10\n5  MM2  S4   dgd      1\n6  MM4  S2    rd      2\n7  MM4  S2    cb      2\n8  MM4  S2   uyi      7\n\nIn [2]: df.groupby(['Sp', 'Mt'])['count'].max()\nOut[2]:\nSp   Mt\nMM1  S1     3\n     S3     5\nMM2  S3     8\n     S4    10\nMM4  S2     7\nName: count, dtype: int64\n\nTo get the indices of the original DF you can do:\nIn [3]: idx = df.groupby(['Sp', 'Mt'])['count'].transform(max) == df['count']\n\nIn [4]: df[idx]\nOut[4]:\n    Sp  Mt Value  count\n0  MM1  S1     a      3\n2  MM1  S3    cb      5\n3  MM2  S3    mk      8\n4  MM2  S4    bg     10\n8  MM4  S2   uyi      7\n\nNote that if you have multiple max values per group, all will be returned.\n\nUpdate\nOn a Hail Mary chance that this is what the OP is requesting:\nIn [5]: df['count_max'] = df.groupby(['Sp', 'Mt'])['count'].transform(max)\n\n",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 15705630,
+      "answer_id": 15705958,
+      "question_score": 511,
+      "answer_score": 608,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "group-by",
+        "max"
+      ]
+    }
+  },
+  {
+    "prompt": "How do I create a new column where the values are selected based on an existing column?\n\nHow do I add a color column to the following dataframe so that color='green' if Set == 'Z', and color='red' otherwise?\n   Type  Set\n1     A    Z\n2     B    Z           \n3     B    X\n4     C    Y",
+    "response": "If you only have two choices to select from then use np.where:\ndf['color'] = np.where(df['Set']=='Z', 'green', 'red')\n\nFor example,\nimport pandas as pd\nimport numpy as np\n\ndf = pd.DataFrame({'Type':list('ABBC'), 'Set':list('ZZXY')})\ndf['color'] = np.where(df['Set']=='Z', 'green', 'red')\nprint(df)\n\nyields\n  Set Type  color\n0   Z    A  green\n1   Z    B  green\n2   X    B    red\n3   Y    C    red\n\n\nIf you have more than two conditions then use np.select. For example, if you want color to be\n\nyellow when (df['Set'] == 'Z') & (df['Type'] == 'A')\notherwise blue when (df['Set'] == 'Z') & (df['Type'] == 'B')\notherwise purple when (df['Type'] == 'B')\notherwise black,\n\nthen use\ndf = pd.DataFrame({'Type':list('ABBC'), 'Set':list('ZZXY')})\nconditions = [\n    (df['Set'] == 'Z') & (df['Type'] == 'A'),\n    (df['Set'] == 'Z') & (df['Type'] == 'B'),\n    (df['Type'] == 'B')]\nchoices = ['yellow', 'blue', 'purple']\ndf['color'] = np.select(conditions, choices, default='black')\nprint(df)\n\nwhich yields\n  Set ",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 19913659,
+      "answer_id": 19913845,
+      "question_score": 510,
+      "answer_score": 1060,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "numpy"
+      ]
+    }
+  },
+  {
+    "prompt": "Create Pandas DataFrame from a string\n\nIn order to test some functionality I would like to create a DataFrame from a string. Let's say my test data looks like:\n\nTESTDATA=\"\"\"col1;col2;col3\n1;4.4;99\n2;4.5;200\n3;4.7;65\n4;3.2;140\n\"\"\"\n\n\nWhat is the simplest way to read that data into a Pandas DataFrame?",
+    "response": "A simple way to do this is to use StringIO.StringIO (python2) or io.StringIO (python3) and pass that to the pandas.read_csv function. E.g:\n\nimport sys\nif sys.version_info[0] < 3: \n    from StringIO import StringIO\nelse:\n    from io import StringIO\n\nimport pandas as pd\n\nTESTDATA = StringIO(\"\"\"col1;col2;col3\n    1;4.4;99\n    2;4.5;200\n    3;4.7;65\n    4;3.2;140\n    \"\"\")\n\ndf = pd.read_csv(TESTDATA, sep=\";\")",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 22604564,
+      "answer_id": 22605281,
+      "question_score": 507,
+      "answer_score": 851,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "string",
+        "pandas",
+        "csv",
+        "csv-import"
+      ]
+    }
+  },
+  {
+    "prompt": "How to draw vertical lines on a given plot\n\nGiven a plot of a signal in time representation, how can I draw lines marking the corresponding time index?\nSpecifically, given a signal plot with a time index ranging from 0 to 2.6 (seconds), I want to draw vertical red lines indicating the corresponding time index for the list [0.22058956, 0.33088437, 2.20589566]. How can I do it?",
+    "response": "The standard way to add vertical lines that will cover your entire plot window without you having to specify their actual height is plt.axvline\n\nimport matplotlib.pyplot as plt\n\nplt.axvline(x=0.22058956)\nplt.axvline(x=0.33088437)\nplt.axvline(x=2.20589566)\n\n\nOR\n\nxcoords = [0.22058956, 0.33088437, 2.20589566]\nfor xc in xcoords:\n    plt.axvline(x=xc)\n\n\nYou can use many of the keywords available for other plot commands (e.g. color, linestyle, linewidth ...).  You can pass in keyword arguments ymin and ymax if you like in axes corrdinates (e.g. ymin=0.25, ymax=0.75 will cover the middle half of the plot).  There are corresponding functions for horizontal lines (axhline) and rectangles (axvspan).",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 24988448,
+      "answer_id": 24988486,
+      "question_score": 504,
+      "answer_score": 749,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "matplotlib",
+        "seaborn"
+      ]
+    }
+  },
+  {
+    "prompt": "Convert Pandas Column to DateTime\n\nI have one field in a pandas DataFrame that was imported as string format.\nIt should be a datetime variable. How do I convert it to a datetime column, and then filter based on date?\nExample:\nraw_data = pd.DataFrame({'Mycol': ['05SEP2014:00:00:00.000']})",
+    "response": "Use the to_datetime function, specifying a format to match your data.\ndf['Mycol'] = pd.to_datetime(df['Mycol'], format='%d%b%Y:%H:%M:%S.%f')",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 26763344,
+      "answer_id": 26763793,
+      "question_score": 500,
+      "answer_score": 841,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "datetime",
+        "type-conversion"
+      ]
+    }
+  },
+  {
+    "prompt": "Normalize columns of a dataframe\n\nI have a dataframe in pandas where each column has different value range. For example:\n\ndf:\n\nA     B   C\n1000  10  0.5\n765   5   0.35\n800   7   0.09\n\n\nAny idea how I can normalize the columns of this dataframe where each value is between 0 and 1?\n\nMy desired output is:\n\nA     B    C\n1     1    1\n0.765 0.5  0.7\n0.8   0.7  0.18(which is 0.09/0.5)",
+    "response": "You can use the package sklearn and its associated preprocessing utilities to normalize the data.\n\nimport pandas as pd\nfrom sklearn import preprocessing\n\nx = df.values #returns a numpy array\nmin_max_scaler = preprocessing.MinMaxScaler()\nx_scaled = min_max_scaler.fit_transform(x)\ndf = pd.DataFrame(x_scaled)\n\n\nFor more information look at the scikit-learn documentation on preprocessing data: scaling features to a range.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 26414913,
+      "answer_id": 26415620,
+      "question_score": 489,
+      "answer_score": 427,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "normalize"
+      ]
+    }
+  },
+  {
+    "prompt": "Remove pandas rows with duplicate indices\n\nHow to remove rows with duplicate index values?\nIn the weather DataFrame below, sometimes a scientist goes back and corrects observations -- not by editing the erroneous rows, but by appending a duplicate row to the end of a file.\nI'm reading some automated weather data from the web (observations occur every 5 minutes, and compiled into monthly files for each weather station.) After parsing a file, the DataFrame looks like:\n                      Sta  Precip1hr  Precip5min  Temp  DewPnt  WindSpd ",
+    "response": "I would suggest using the duplicated method on the Pandas Index itself:\ndf3 = df3.loc[~df3.index.duplicated(keep='first'), :]\n\nWhile all the other methods work, .drop_duplicates is by far the least performant for the provided example. Furthermore, while the groupby method is only slightly less performant, I find the duplicated method to be more readable.\nUsing the sample data provided:\n>>> %timeit df3.reset_index().drop_duplicates(subset='index', keep='first').set_index('index')\n1000 loops, best of 3: 1.54 ms per loop\n\n>>> %timeit df3.groupby(df3.index).first()\n1000 loops, best of 3: 580 µs per loop\n\n>>> %timeit df3.loc[~df3.index.duplicated(keep='first'), :]\n1000 loops, best of 3: 307 µs per loop\n\nNote that you can keep the last element by changing the keep argument to 'last'.\nIt should also be noted that this method works with MultiIndex as well (using df1 as specified in Paul's example):\n>>> %timeit df1.groupby(level=df1.index.names).last()\n1000 loops, best of 3: 771 µs per loop\n\n>>",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13035764,
+      "answer_id": 34297689,
+      "question_score": 488,
+      "answer_score": 883,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "duplicates"
+      ]
+    }
+  },
+  {
+    "prompt": "How to reversibly store and load a Pandas dataframe to/from disk\n\nRight now I'm importing a fairly large CSV as a dataframe every time I run the script. Is there a good solution for keeping that dataframe constantly available in between runs so I don't have to spend all that time waiting for the script to run?",
+    "response": "The easiest way is to pickle it using to_pickle:\ndf.to_pickle(file_name)  # where to save it, usually as a .pkl\n\nThen you can load it back using:\ndf = pd.read_pickle(file_name)\n\nNote: before 0.11.1 save and load were the only way to do this (they are now deprecated in favor of to_pickle and read_pickle respectively).\n\nAnother popular choice is to use HDF5 (pytables) which offers very fast access times for large datasets:\nimport pandas as pd\nstore = pd.HDFStore('store.h5')\n\nstore['df'] = df  # save it\nstore['df']  # load it\n\nMore advanced strategies are discussed in the cookbook.\n\nSince 0.13 there's also msgpack which may be be better for interoperability, as a faster alternative to JSON, or if you have python object/text-heavy data (see this question).",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 17098654,
+      "answer_id": 17098736,
+      "question_score": 488,
+      "answer_score": 707,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Convert DataFrame column type from string to datetime\n\nHow can I convert a DataFrame column of strings (in dd/mm/yyyy format) to datetime dtype?",
+    "response": "The easiest way is to use to_datetime:\ndf['col'] = pd.to_datetime(df['col'])\n\nIt also offers a dayfirst argument for European times (but beware this isn't strict).\nHere it is in action:\nIn [11]: pd.to_datetime(pd.Series(['05/23/2005']))\nOut[11]:\n0   2005-05-23 00:00:00\ndtype: datetime64[ns]\n\nYou can pass a specific format:\nIn [12]: pd.to_datetime(pd.Series(['05/23/2005']), format=\"%m/%d/%Y\")\nOut[12]:\n0   2005-05-23\ndtype: datetime64[ns]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 17134716,
+      "answer_id": 17134750,
+      "question_score": 488,
+      "answer_score": 739,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "datetime",
+        "type-conversion"
+      ]
+    }
+  },
+  {
+    "prompt": "Converting between datetime, Timestamp and datetime64\n\nHow do I convert a numpy.datetime64 object to a datetime.datetime (or Timestamp)?\n\nIn the following code, I create a datetime, timestamp and datetime64 objects.\n\nimport datetime\nimport numpy as np\nimport pandas as pd\ndt = datetime.datetime(2012, 5, 1)\n# A strange way to extract a Timestamp object, there's surely a better way?\nts = pd.DatetimeIndex([dt])[0]\ndt64 = np.datetime64(dt)\n\nIn [7]: dt\nOut[7]: datetime.datetime(2012, 5, 1, 0, 0)\n\nIn [8]: ts\nOut[8]: <Timestamp: 2012-05-01 00:00:00>\n\nIn [9]",
+    "response": "To convert numpy.datetime64 to datetime object that represents time in UTC on numpy-1.8:\n>>> from datetime import datetime\n>>> import numpy as np\n>>> dt = datetime.utcnow()\n>>> dt\ndatetime.datetime(2012, 12, 4, 19, 51, 25, 362455)\n>>> dt64 = np.datetime64(dt)\n>>> ts = (dt64 - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')\n>>> ts\n1354650685.3624549\n>>> datetime.utcfromtimestamp(ts)\ndatetime.datetime(2012, 12, 4, 19, 51, 25, 362455)\n>>> np.__version__\n'1.8.0.dev-7b75899'\n\nThe above example assumes that a naive datetime object is interpreted by np.datetime64 as time in UTC.\n\nTo convert datetime to np.datetime64 and back (numpy-1.6):\n>>> np.datetime64(datetime.utcnow()).astype(datetime)\ndatetime.datetime(2012, 12, 4, 13, 34, 52, 827542)\n\nIt works both on a single np.datetime64 object and a numpy array of np.datetime64.\nThink of np.datetime64 the same way you would about np.int8, np.int16, etc and apply the same methods to convert between Python objects such as int, datetim",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 13703720,
+      "answer_id": 13704307,
+      "question_score": 483,
+      "answer_score": 192,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "datetime",
+        "numpy",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "How to add pandas data to an existing csv file?\n\nI want to know if it is possible to use the pandas to_csv() function to add a dataframe to an existing csv file. The csv file has the same structure as the loaded data.",
+    "response": "You can specify a python write mode in the pandas to_csv function. For append it is 'a'.\nIn your case:\ndf.to_csv('my_csv.csv', mode='a', header=False)\n\nThe default mode is 'w'.\nIf the file initially might be missing, you can make sure the header is printed at the first write using this variation:\noutput_path='my_csv.csv'\ndf.to_csv(output_path, mode='a', header=not os.path.exists(output_path))",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 17530542,
+      "answer_id": 17975690,
+      "question_score": 479,
+      "answer_score": 1000,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "csv",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Using Pandas to pd.read_excel() for multiple (but not all) worksheets of the same workbook without reloading the whole file\n\nI have a large spreadsheet file (.xlsx) that I'm processing using python pandas. It happens that I need data from two tabs (sheets) in that large file. One of the tabs has a ton of data and the other is just a few square cells.\nWhen I use pd.read_excel() on any worksheet, it looks to me like the whole file is loaded (not just the worksheet I'm interested in). So when I use the method twice (once for each sheet), I effectively have to suffer the whole workbook being read in twice (even though we'",
+    "response": "Try pd.ExcelFile:\n\nxls = pd.ExcelFile('path_to_file.xls')\ndf1 = pd.read_excel(xls, 'Sheet1')\ndf2 = pd.read_excel(xls, 'Sheet2')\n\n\nAs noted by @HaPsantran, the entire Excel file is read in during the ExcelFile() call (there doesn't appear to be a way around this). This merely saves you from having to read the same file in each time you want to access a new sheet.\n\nNote that the sheet_name argument to pd.read_excel() can be the name of the sheet (as above), an integer specifying the sheet number (eg 0, 1, etc), a list of sheet names or indices, or None. If a list is provided, it returns a dictionary where the keys are the sheet names/indices and the values are the data frames. The default is to simply return the first sheet (ie, sheet_name=0).\n\nIf None is specified, all sheets are returned, as a {sheet_name:dataframe} dictionary.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 26521266,
+      "answer_id": 26521726,
+      "question_score": 454,
+      "answer_score": 642,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "excel",
+        "pandas",
+        "dataframe",
+        "xlsx"
+      ]
+    }
+  },
+  {
+    "prompt": "Convert a Pandas DataFrame to a dictionary\n\nI have a DataFrame with four columns. I want to convert this DataFrame to a python dictionary. I want the elements of first column be keys and the elements of other columns in the same row be values.\nDataFrame:\n    ID   A   B   C\n0   p    1   3   2\n1   q    4   3   2\n2   r    4   0   9 \n\nOutput should be like this:\n{'p': [1,3,2], 'q': [4,3,2], 'r': [4,0,9]}",
+    "response": "The to_dict() method sets the column names as dictionary keys so you'll need to reshape your DataFrame slightly. Setting the 'ID' column as the index and then transposing the DataFrame is one way to achieve this.\n\nto_dict() also accepts an 'orient' argument which you'll need in order to output a list of values for each column. Otherwise, a dictionary of the form {index: value} will be returned for each column.\n\nThese steps can be done with the following line:\n\n>>> df.set_index('ID').T.to_dict('list')\n{'p': [1, 3, 2], 'q': [4, 3, 2], 'r': [4, 0, 9]}\n\n\n\n\nIn case a different dictionary format is needed, here are examples of the possible orient arguments. Consider the following simple DataFrame:\n\n>>> df = pd.DataFrame({'a': ['red', 'yellow', 'blue'], 'b': [0.5, 0.25, 0.125]})\n>>> df\n        a      b\n0     red  0.500\n1  yellow  0.250\n2    blue  0.125\n\n\nThen the options are as follows.\n\ndict - the default: column names are keys, values are dictionaries of index:data pairs\n\n>>> df.to_dict('di",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 26716616,
+      "answer_id": 26716774,
+      "question_score": 453,
+      "answer_score": 753,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dictionary",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "How to invert the x or y axis\n\nI have a scatter plot graph with a bunch of random x, y coordinates. Currently the Y-Axis starts at 0 and goes up to the max value. I would like the Y-Axis to start at the max value and go up to 0.\n\npoints = [(10,5), (5,11), (24,13), (7,8)]    \nx_arr = []\ny_arr = []\nfor x,y in points:\n    x_arr.append(x)\n    y_arr.append(y)\nplt.scatter(x_arr,y_arr)",
+    "response": "There is a new API that makes this even simpler.\n\nplt.gca().invert_xaxis()\n\n\nand/or\n\nplt.gca().invert_yaxis()",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 2051744,
+      "answer_id": 8280500,
+      "question_score": 449,
+      "answer_score": 851,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "matplotlib",
+        "seaborn"
+      ]
+    }
+  },
+  {
+    "prompt": "Creating a Pandas DataFrame from a Numpy array: How do I specify the index column and column headers?\n\nI have a Numpy array consisting of a list of lists, representing a two-dimensional array with row labels and column names as shown below:\ndata = np.array([['','Col1','Col2'],['Row1',1,2],['Row2',3,4]])\n\nI'd like the resulting DataFrame to have Row1 and Row2 as index values, and Col1, Col2 as header values.\nI can specify the index as follows:\ndf = pd.DataFrame(data, index=data[:,0])\n\nHowever, I am unsure how to best assign column headers.",
+    "response": "Specify data, index and columns to the DataFrame constructor, as follows:\n>>> pd.DataFrame(data=data[1:,1:],    # values\n...              index=data[1:,0],    # 1st column as index\n...              columns=data[0,1:])  # 1st row as the column names\n\nAs @joris mentions, you may need to change above to np.int_(data[1:,1:]) to have the correct data type.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 20763012,
+      "answer_id": 20763459,
+      "question_score": 444,
+      "answer_score": 449,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "list",
+        "numpy"
+      ]
+    }
+  },
+  {
+    "prompt": "pandas get rows which are NOT in other dataframe\n\nI've two pandas data frames that have some rows in common.\nSuppose dataframe2 is a subset of dataframe1.\nHow can I get the rows of dataframe1 which are not in dataframe2?\ndf1 = pandas.DataFrame(data = {'col1' : [1, 2, 3, 4, 5], 'col2' : [10, 11, 12, 13, 14]}) \ndf2 = pandas.DataFrame(data = {'col1' : [1, 2, 3], 'col2' : [10, 11, 12]})\n\ndf1\n   col1  col2\n0     1    10\n1     2    11\n2     3    12\n3     4    13\n4     5    14\n\ndf2\n   col1  col2\n0     1    10\n1     2    11\n2     3    12\n\nExpected resu",
+    "response": "One method would be to store the result of an inner merge form both dfs, then we can simply select the rows when one column's values are not in this common:\n\nIn [119]:\n\ncommon = df1.merge(df2,on=['col1','col2'])\nprint(common)\ndf1[(~df1.col1.isin(common.col1))&(~df1.col2.isin(common.col2))]\n   col1  col2\n0     1    10\n1     2    11\n2     3    12\nOut[119]:\n   col1  col2\n3     4    13\n4     5    14\n\n\nEDIT\n\nAnother method as you've found is to use isin which will produce NaN rows which you can drop:\n\nIn [138]:\n\ndf1[~df1.isin(df2)].dropna()\nOut[138]:\n   col1  col2\n3     4    13\n4     5    14\n\n\nHowever if df2 does not start rows in the same manner then this won't work:\n\ndf2 = pd.DataFrame(data = {'col1' : [2, 3,4], 'col2' : [11, 12,13]})\n\n\nwill produce the entire df:\n\nIn [140]:\n\ndf1[~df1.isin(df2)].dropna()\nOut[140]:\n   col1  col2\n0     1    10\n1     2    11\n2     3    12\n3     4    13\n4     5    14",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 28901683,
+      "answer_id": 28902170,
+      "question_score": 443,
+      "answer_score": 264,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "pandas: filter rows of DataFrame with operator chaining\n\nMost operations in pandas can be accomplished with operator chaining (groupby, aggregate, apply, etc), but the only way I've found to filter rows is via normal bracket indexing\n\ndf_filtered = df[df['column'] == value]\n\n\nThis is unappealing as it requires I assign df to a variable before being able to filter on its values.  Is there something more like the following?\n\ndf_filtered = df.mask(lambda x: x['column'] == value)",
+    "response": "I'm not entirely sure what you want, and your last line of code does not help either, but anyway:\n\n\"Chained\" filtering is done by \"chaining\" the criteria in the boolean index.\n\nIn [96]: df\nOut[96]:\n   A  B  C  D\na  1  4  9  1\nb  4  5  0  2\nc  5  5  1  0\nd  1  3  9  6\n\nIn [99]: df[(df.A == 1) & (df.D == 6)]\nOut[99]:\n   A  B  C  D\nd  1  3  9  6\n\n\nIf you want to chain methods, you can add your own mask method and use that one.\n\nIn [90]: def mask(df, key, value):\n   ....:     return df[df[key] == value]\n   ....:\n\nIn [92]: pandas.DataFrame.mask = mask\n\nIn [93]: df = pandas.DataFrame(np.random.randint(0, 10, (4,4)), index=list('abcd'), columns=list('ABCD'))\n\nIn [95]: df.ix['d','A'] = df.ix['a', 'A']\n\nIn [96]: df\nOut[96]:\n   A  B  C  D\na  1  4  9  1\nb  4  5  0  2\nc  5  5  1  0\nd  1  3  9  6\n\nIn [97]: df.mask('A', 1)\nOut[97]:\n   A  B  C  D\na  1  4  9  1\nd  1  3  9  6\n\nIn [98]: df.mask('A', 1).mask('D', 6)\nOut[98]:\n   A  B  C  D\nd  1  3  9  6",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 11869910,
+      "answer_id": 11872393,
+      "question_score": 443,
+      "answer_score": 479,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "How to get/set a pandas index column title or name?\n\nHow do I get the index column name in Python's pandas? Here's an example dataframe:\n             Column 1\nIndex Title          \nApples              1\nOranges             2\nPuppies             3\nDucks               4  \n\nWhat I'm trying to do is get/set the dataframe's index title. Here is what I tried:\nimport pandas as pd\n\ndata = {'Column 1'   : [1., 2., 3., 4.], \n        'Index Title': [\"Apples\", \"Oranges\", \"Puppies\", \"Ducks\"]}\ndf = pd.DataFrame(data)\ndf.index = df[\"Index Title\"]\ndel df[\"Index T",
+    "response": "You can just get/set the index via its name property\n\nIn [7]: df.index.name\nOut[7]: 'Index Title'\n\nIn [8]: df.index.name = 'foo'\n\nIn [9]: df.index.name\nOut[9]: 'foo'\n\nIn [10]: df\nOut[10]: \n         Column 1\nfoo              \nApples          1\nOranges         2\nPuppies         3\nDucks           4",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18022845,
+      "answer_id": 18023468,
+      "question_score": 437,
+      "answer_score": 625,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe",
+        "indexing",
+        "rename"
+      ]
+    }
+  },
+  {
+    "prompt": "What does axis in pandas mean?\n\nHere is my code to generate a dataframe:\nimport pandas as pd\nimport numpy as np\n\ndff = pd.DataFrame(np.random.randn(1, 2), columns=list('AB'))\n\nthen I got the dataframe:\n          A        B\n0  0.626386  1.52325\n\nWhen I type the command dff.mean(axis=1), I get:\n0    1.074821\ndtype: float64\n\nAccording to the reference of pandas, axis=1 stands for columns and I expect the result of the command to be\nA    0.626386\nB    1.523255\ndtype: float64\n\nSo what does axis in pandas mean?",
+    "response": "It specifies the axis along which the means are computed. By default axis=0. This is consistent with the numpy.mean usage when axis is specified explicitly (in numpy.mean, axis==None by default, which computes the mean value over the flattened array) , in which axis=0 along the rows (namely, index in pandas), and axis=1 along the columns. For added clarity, one may choose to specify axis='index' (instead of axis=0) or axis='columns' (instead of axis=1).\n          A        B\n0  0.626386  1.52325  → → axis=1 → →\n          ↓        ↓\n          ↓ axis=0 ↓\n          ↓        ↓",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 22149584,
+      "answer_id": 22149930,
+      "question_score": 434,
+      "answer_score": 559,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Pandas DataFrame to List of Dictionaries\n\nI have the following DataFrame:\n\ncustomer    item1      item2    item3\n1           apple      milk     tomato\n2           water      orange   potato\n3           juice      mango    chips\n\nwhich I want to translate it to list of dictionaries per row\nrows = [\n    {\n        'customer': 1,\n        'item1': 'apple',\n        'item2': 'milk',\n        'item3': 'tomato'\n    }, {\n        'customer': 2,\n        'item1':\n        'water',\n        'item2': 'orange',\n        'item3': 'potato'\n    }, {\n        ",
+    "response": "Use df.to_dict('records') -- gives the output without having to transpose externally.\nIn [2]: df.to_dict('records')\nOut[2]:\n[{'customer': 1L, 'item1': 'apple', 'item2': 'milk', 'item3': 'tomato'},\n {'customer': 2L, 'item1': 'water', 'item2': 'orange', 'item3': 'potato'},\n {'customer': 3L, 'item1': 'juice', 'item2': 'mango', 'item3': 'chips'}]",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 29815129,
+      "answer_id": 29816143,
+      "question_score": 434,
+      "answer_score": 605,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Apply multiple functions to multiple groupby columns\n\nThe docs show how to apply multiple functions on a groupby object at a time using a dict with the output column names as the keys:\nIn [563]: grouped['D'].agg({'result1' : np.sum,\n   .....:                   'result2' : np.mean})\n   .....:\nOut[563]: \n      result2   result1\nA                      \nbar -0.579846 -1.739537\nfoo -0.280588 -1.402938\n\nHowever, this only works on a Series groupby object. And when a dict is similarly passed to a groupby DataFrame, it expects the keys to be the column nam",
+    "response": "The second half of the currently accepted answer is outdated and has two deprecations. First and most important, you can no longer pass a dictionary of dictionaries to the agg groupby method. Second, never use .ix.\nIf you desire to work with two separate columns at the same time I would suggest using the apply method which implicitly passes a DataFrame to the applied function. Let's use a similar dataframe as the one from above\ndf = pd.DataFrame(np.random.rand(4,4), columns=list('abcd'))\ndf['group'] = [0, 0, 1, 1]\ndf\n\n          a         b         c         d  group\n0  0.418500  0.030955  0.874869  0.145641      0\n1  0.446069  0.901153  0.095052  0.487040      0\n2  0.843026  0.936169  0.926090  0.041722      1\n3  0.635846  0.439175  0.828787  0.714123      1\n\nA dictionary mapped from column names to aggregation functions is still a perfectly good way to perform an aggregation.\ndf.groupby('group').agg({'a':['sum', 'max'], \n                         'b':'mean', \n                         '",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 14529838,
+      "answer_id": 47103408,
+      "question_score": 431,
+      "answer_score": 625,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "group-by",
+        "aggregate-functions",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "Combining two Series into a DataFrame in pandas\n\nI have two Series s1 and s2 with the same (non-consecutive) indices. How do I combine s1 and s2 to being two columns in a DataFrame and keep one of the indices as a third column?",
+    "response": "I think concat is a nice way to do this. If they are present it uses the name attributes of the Series as the columns (otherwise it simply numbers them):\n\nIn [1]: s1 = pd.Series([1, 2], index=['A', 'B'], name='s1')\n\nIn [2]: s2 = pd.Series([3, 4], index=['A', 'B'], name='s2')\n\nIn [3]: pd.concat([s1, s2], axis=1)\nOut[3]:\n   s1  s2\nA   1   3\nB   2   4\n\nIn [4]: pd.concat([s1, s2], axis=1).reset_index()\nOut[4]:\n  index  s1  s2\n0     A   1   3\n1     B   2   4\n\n\nNote: This extends to more than 2 Series.",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18062135,
+      "answer_id": 18062521,
+      "question_score": 426,
+      "answer_score": 610,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "series",
+        "dataframe"
+      ]
+    }
+  },
+  {
+    "prompt": "Keep only date part when using pandas.to_datetime\n\nI use pandas.to_datetime to parse the dates in my data. Pandas by default represents the dates with datetime64[ns] even though the dates are all daily only.\nI wonder whether there is an elegant/clever way to convert the dates to datetime.date or datetime64[D] so that, when I write the data to CSV, the dates are not appended with 00:00:00. I know I can convert the type manually element-by-element:\n\n[dt.to_datetime().date() for dt in df.dates]\n\n\nBut this is really slow since I have many rows and i",
+    "response": "Since version 0.15.0 this can now be easily done using .dt to access just the date component:\ndf['just_date'] = df['dates'].dt.date\n\nThe above returns datetime.date, so object dtype. If you want to keep the dtype as datetime64 then you can just normalize:\ndf['normalised_date'] = df['dates'].dt.normalize()\n\nThis sets the time component to midnight, i.e. 00:00:00, but the display shows just the date value.\n\npandas.Series.dt",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 16176996,
+      "answer_id": 34277514,
+      "question_score": 425,
+      "answer_score": 641,
+      "is_accepted": false,
+      "tags": [
+        "python",
+        "pandas",
+        "csv",
+        "datetime",
+        "series"
+      ]
+    }
+  },
+  {
+    "prompt": "how do I insert a column at a specific column index in pandas?\n\nCan I insert a column at a specific column index in pandas? \n\nimport pandas as pd\ndf = pd.DataFrame({'l':['a','b','c','d'], 'v':[1,2,1,2]})\ndf['n'] = 0\n\n\nThis will put column n as the last column of df, but isn't there a way to tell df to put n at the beginning?",
+    "response": "see docs: http://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.insert.html\nusing loc = 0 will insert at the beginning\ndf.insert(loc, column, value)\n\n\ndf = pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]})\n\ndf\nOut: \n   B  C\n0  1  4\n1  2  5\n2  3  6\n\nidx = 0\nnew_col = [7, 8, 9]  # can be a list, a Series, an array or a scalar   \ndf.insert(loc=idx, column='A', value=new_col)\n\ndf\nOut: \n   A  B  C\n0  7  1  4\n1  8  2  5\n2  9  3  6",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 18674064,
+      "answer_id": 18674915,
+      "question_score": 422,
+      "answer_score": 740,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "indexing",
+        "pandas"
+      ]
+    }
+  },
+  {
+    "prompt": "Pandas &#39;count(distinct)&#39; equivalent\n\nI am using Pandas as a database substitute as I have multiple databases (Oracle, SQL Server, etc.), and I am unable to make a sequence of commands to a SQL equivalent.\nI have a table loaded in a DataFrame with some columns:\nYEARMONTH, CLIENTCODE, SIZE, etc., etc.\n\nIn SQL, to count the amount of different clients per year would be:\nSELECT count(distinct CLIENTCODE) FROM table GROUP BY YEARMONTH;\n\nAnd the result would be\n201301    5000\n201302    13245\n\nHow can I do that in Pandas?",
+    "response": "I believe this is what you want:\n\ntable.groupby('YEARMONTH').CLIENTCODE.nunique()\n\n\nExample:\n\nIn [2]: table\nOut[2]: \n   CLIENTCODE  YEARMONTH\n0           1     201301\n1           1     201301\n2           2     201301\n3           1     201302\n4           2     201302\n5           2     201302\n6           3     201302\n\nIn [3]: table.groupby('YEARMONTH').CLIENTCODE.nunique()\nOut[3]: \nYEARMONTH\n201301       2\n201302       3",
+    "metadata": {
+      "source": "stackoverflow",
+      "question_id": 15411158,
+      "answer_id": 15411596,
+      "question_score": 421,
+      "answer_score": 601,
+      "is_accepted": true,
+      "tags": [
+        "python",
+        "pandas",
+        "group-by",
+        "count",
+        "duplicates"
+      ]
+    }
+  }
+]
